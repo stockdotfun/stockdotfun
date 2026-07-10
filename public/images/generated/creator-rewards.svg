@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1344 768" fill="none">
+  <rect width="1344" height="768" fill="#0c110e"/>
+  <g stroke="#00c805" stroke-opacity="0.05">
+    <path d="M0 192h1344M0 384h1344M0 576h1344M336 0v768M672 0v768M1008 0v768"/>
+  </g>
+  <!-- inbound stream -->
+  <path d="M60 384 H560" stroke="#00c805" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+  <path d="M60 384 H560" stroke="#7ce896" stroke-width="14" stroke-linecap="round" opacity="0.12"/>
+  <!-- split -->
+  <path d="M560 384 C 720 384, 760 220, 940 220" stroke="#00c805" stroke-width="4" stroke-dasharray="8 10" opacity="0.85"/>
+  <path d="M560 384 C 720 384, 760 548, 940 548" stroke="#00c805" stroke-width="4" stroke-dasharray="8 10" opacity="0.85"/>
+  <circle cx="560" cy="384" r="14" fill="#00c805"/>
+  <!-- USDC disc -->
+  <circle cx="1030" cy="220" r="72" fill="#f4f2eb"/>
+  <text x="1030" y="230" text-anchor="middle" fill="#10140f" font-family="monospace" font-size="26" font-weight="bold">USDC</text>
+  <!-- stock card -->
+  <rect x="950" y="480" width="180" height="130" rx="20" fill="#10150f" stroke="#00c805" stroke-width="2.5"/>
+  <text x="1040" y="540" text-anchor="middle" fill="#7ce896" font-family="monospace" font-size="24" font-weight="bold">STOCK</text>
+  <text x="1040" y="572" text-anchor="middle" fill="#9aa69c" font-family="monospace" font-size="16">TOKEN</text>
+  <!-- nodes -->
+  <circle cx="300" cy="384" r="7" fill="#7ce896" opacity="0.9"/>
+  <circle cx="430" cy="384" r="5" fill="#7ce896" opacity="0.6"/>
+  <circle cx="770" cy="300" r="5" fill="#7ce896" opacity="0.6"/>
+  <circle cx="770" cy="470" r="5" fill="#7ce896" opacity="0.6"/>
+  <text x="672" y="732" text-anchor="middle" fill="#3a463c" font-family="monospace" font-size="20" letter-spacing="6">CREATOR REWARDS PLACEHOLDER — SEE IMAGE_PROMPTS.MD</text>
+</svg>

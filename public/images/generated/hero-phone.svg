@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#0f2a13"/>
+      <stop offset="100%" stop-color="#070a08"/>
+    </radialGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c1a0e"/>
+      <stop offset="100%" stop-color="#081008"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <g stroke="#00c805" stroke-opacity="0.05">
+    <path d="M0 270h1920M0 540h1920M0 810h1920M480 0v1080M960 0v1080M1440 0v1080"/>
+  </g>
+  <!-- phone -->
+  <rect x="760" y="240" width="400" height="640" rx="48" fill="#0b0f0c" stroke="#1e2620" stroke-width="3"/>
+  <rect x="784" y="268" width="352" height="584" rx="30" fill="url(#screen)"/>
+  <!-- candles on screen -->
+  <g>
+    <rect x="830" y="560" width="22" height="120" rx="4" fill="#00c805" opacity="0.9"/>
+    <rect x="874" y="500" width="22" height="180" rx="4" fill="#00c805" opacity="0.55"/>
+    <rect x="918" y="540" width="22" height="140" rx="4" fill="#00c805" opacity="0.8"/>
+    <rect x="962" y="450" width="22" height="230" rx="4" fill="#00c805" opacity="0.6"/>
+    <rect x="1006" y="490" width="22" height="190" rx="4" fill="#00c805" opacity="0.9"/>
+    <rect x="1050" y="410" width="22" height="270" rx="4" fill="#00c805" opacity="0.7"/>
+  </g>
+  <path d="M830 430c60-40 120 20 180-40s120-60 180-100" stroke="#7ce896" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  <!-- desk reflection -->
+  <ellipse cx="960" cy="930" rx="420" ry="36" fill="#00c805" opacity="0.06"/>
+  <!-- coin stickers -->
+  <circle cx="600" cy="820" r="46" fill="#0e1510" stroke="#00c805" stroke-opacity="0.4" stroke-width="2"/>
+  <circle cx="1330" cy="760" r="34" fill="#0e1510" stroke="#00c805" stroke-opacity="0.3" stroke-width="2"/>
+  <circle cx="1400" cy="860" r="22" fill="#0e1510" stroke="#00c805" stroke-opacity="0.25" stroke-width="2"/>
+  <text x="960" y="1044" text-anchor="middle" fill="#3a463c" font-family="monospace" font-size="22" letter-spacing="6">HERO PLACEHOLDER — SEE IMAGE_PROMPTS.MD</text>
+</svg>

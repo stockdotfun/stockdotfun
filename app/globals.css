@@ -1,26 +1,300 @@
 @import "tailwindcss";
 
+/* Class-based theming: `.dark` on <html> switches the palette. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Light theme (Robinhood-official-site energy) ---- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f6f1;
+  --foreground: #101410;
+  --card: #ffffff;
+  --card-foreground: #101410;
+  --muted: #edebe1;
+  --muted-foreground: #5c645a;
+  --border: #dcd8ca;
+  --border-soft: #e8e5d9;
+  --input: #dcd8ca;
+  --ring: #00a305;
+  --primary: #00a305;
+  --primary-foreground: #ffffff;
+  --success: #067a26;
+  --warning: #a16207;
+  --destructive: #b91c1c;
+  --grid-line: rgba(16, 20, 16, 0.05);
+  --glow: rgba(0, 163, 5, 0.07);
+  /* Official Robinhood mark: black variant on light surfaces */
+  --brand-robinhood: #1c180d;
+}
+
+/* ---- Dark theme (terminal graphite — the original brand) ---- */
+.dark {
+  --background: #070a08;
+  --foreground: #f4f2eb;
+  --card: #0c110e;
+  --card-foreground: #f4f2eb;
+  --muted: #10150f;
+  --muted-foreground: #9aa69c;
+  --border: #232c24;
+  --border-soft: #1a221b;
+  --input: #232c24;
+  --ring: #00c805;
+  --primary: #00c805;
+  --primary-foreground: #04100a;
+  --success: #7ce896;
+  --warning: #eab308;
+  --destructive: #f87171;
+  --grid-line: rgba(0, 200, 5, 0.045);
+  --glow: rgba(0, 200, 5, 0.14);
+  /* Official Robinhood mark: neon variant on dark surfaces */
+  --brand-robinhood: #ccff00;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-instrument-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* ---- Backgrounds ---- */
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.glow-primary {
+  background: radial-gradient(
+    ellipse 60% 45% at 50% 0%,
+    var(--glow),
+    transparent 70%
+  );
+}
+
+/* ---- Motion primitives ---- */
+
+@keyframes tick-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  7% {
+    transform: scale(1.45);
+    opacity: 0.75;
+  }
+  16% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.tick-dot {
+  animation: tick-pulse 2.8s ease-out infinite;
+  transform-origin: center;
+}
+
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 48s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+.floaty {
+  animation: floaty 7s ease-in-out infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -220;
+  }
+}
+
+.flow-line {
+  stroke-dasharray: 6 8;
+  animation: dash-flow 6s linear infinite;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-slow {
+  animation: spin-slow 1.2s linear infinite;
+}
+
+/* slow breathing glow for radial accents */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+.glow-pulse {
+  animation: glow-pulse 6s ease-in-out infinite;
+}
+
+/* gradient shimmer sweep for live pills / accents */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    100deg,
+    var(--primary) 20%,
+    var(--success) 45%,
+    var(--primary) 70%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* gentle continuous rise for accent icons */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.bob {
+  animation: bob 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-pulse,
+  .shimmer-text,
+  .bob,
+  .spin-slow {
+    animation: none;
+  }
+}
+
+/* ---- Button light sweep ---- */
+
+.btn-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.btn-sweep:hover::after {
+  transform: translateX(120%);
+}
+
+/* ---- Misc ---- */
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .tick-dot,
+  .floaty,
+  .flow-line {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }

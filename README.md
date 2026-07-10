@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StockDotFun
 
-## Getting Started
+A Robinhood Chain-native meme coin launchpad where creators pair meme coins
+with supported tokenized stock assets. Trading fees route toward a holder
+stock-token reward vault, creator rewards, and the protocol treasury.
 
-First, run the development server:
+> Create meme. Choose stock pair. Launch.
+
+## Stack
+
+- **Frontend**: Next.js (App Router) · TypeScript · Tailwind CSS v4 · Framer Motion · wagmi + viem · TanStack Query
+- **Contracts**: Solidity 0.8.26 · Foundry · OpenZeppelin v5 (see [contracts/](contracts/README.md))
+- **Theming**: full light/dark system via semantic CSS variables (persistent + system preference)
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # demo mode on by default
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Checks: `npm run lint` · `npx tsc --noEmit` · `npm run build`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Contracts (requires [Foundry](https://getfoundry.sh)):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cd contracts && forge build && forge test -vv
+```
 
-## Learn More
+## Routes
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Purpose |
+| --- | --- |
+| `/` | Marketing landing |
+| `/launch` | Launch intro |
+| `/create` | 4-step create-coin wizard (real `createToken` call when configured) |
+| `/explore` | Launchpad explore: search, filters, sort, cards/table |
+| `/token/[address]` | Token detail: stats, chart, buy/sell panel, rewards |
+| `/portfolio` | Holdings, holder/creator rewards, created coins, transactions |
+| `/rewards` | Reward center explanation |
+| `/creator` | Creator dashboard |
+| `/admin` | Env-gated config foundation (`ADMIN_ENABLED=true` in prod) |
+| `/docs/*` | How it works, supported assets, fees, contracts |
+| `/risk` `/terms` `/privacy` | Legal |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All chain/contract values come from environment variables — see
+[.env.example](.env.example). With nothing configured the app runs safely in
+"not configured" mode (transactions disabled with clear messaging), and
+`NEXT_PUBLIC_DEMO_MODE=true` shows clearly-labeled demo data. Demo data is
+never mixed into live mode.
 
-## Deploy on Vercel
+## Architecture notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `lib/config.ts` — env-derived flags (`isChainConfigured`, `areContractsConfigured`, `demoMode`)
+- `lib/chains/robinhood.ts` — chain from env (no hardcoded IDs/RPCs)
+- `lib/contracts/` — addresses + typed ABIs matching `contracts/src`
+- `lib/indexer/` — data backend abstraction (demo / onchain / external)
+- `lib/data/assets.ts` — supported-asset registry config (pre-deployment source of truth)
+- `lib/storage/upload.ts` — image/metadata storage adapter (TODO: Pinata/Arweave/S3/R2)
+- `hooks/` — `useCreateToken`, `useSupportedAssets`, `useLaunchConfig`, `useWalletNetwork`, `useExploreTokens`, `usePortfolio`, `useUploadTokenImage`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Before mainnet
+
+1. Verify Robinhood Chain ID / RPC / explorer and set env vars.
+2. Audit + deploy contracts (`contracts/script/Deploy.s.sol`), register stock assets.
+3. Connect a storage backend for token images/metadata.
+4. Stand up an event indexer for explore/portfolio/trades data.
+5. Configure a RouterAdapter for quote→stock conversion.
+6. Legal review of terms/privacy/risk copy.
+
+## Compliance
+
+Stock-token assets may provide economic exposure but do not represent direct
+ownership of underlying securities. Rewards depend on activity and protocol
+configuration — never guaranteed. StockDotFun is independent and not
+affiliated with Robinhood unless officially stated. Nothing here is financial
+advice.
