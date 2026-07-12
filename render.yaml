@@ -21,6 +21,8 @@ services:
         sync: false # set in dashboard: Supabase connection string
       - key: PONDER_RPC_URL_4663
         sync: false # optional; else defaults to public RHC RPC
+      - key: DATABASE_SCHEMA
+        value: "stockdotfun_v2" # Ponder writes its tables into this Postgres schema
       - key: FACTORY_ADDRESS
         value: "0x470aca74d71269833de8cf65640dfb558393569e"
       - key: TREASURY_ADDRESS
