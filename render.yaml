@@ -9,7 +9,9 @@ services:
     name: stockdotfun-indexer
     runtime: node
     rootDir: indexer
-    plan: starter # always-on. Use "free" to trial (it sleeps after 15 min idle).
+    plan: free # no card needed. Sleeps after 15 min idle; wakes + re-syncs from
+    # Postgres on the next request. Fine while launch volume is low — upgrade to
+    # "starter" (always-on, ~$7/mo) once real tokens are trading.
     buildCommand: npm ci --no-audit --no-fund
     startCommand: npm run start
     healthCheckPath: /ready
