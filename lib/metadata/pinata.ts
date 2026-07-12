@@ -12,7 +12,10 @@ const PINATA_API = "https://api.pinata.cloud";
 export const metadataConfigured = !!process.env.PINATA_JWT;
 
 function jwt(): string {
-  const t = process.env.PINATA_JWT;
+  // A valid Pinata JWT is base64url segments joined by dots (chars A-Za-z0-9._-).
+  // Strip whitespace and any stray characters (e.g. a "•" from a bad paste),
+  // which would otherwise make the Authorization header throw a ByteString error.
+  const t = process.env.PINATA_JWT?.replace(/[^A-Za-z0-9._-]/g, "");
   if (!t) throw new Error("PINATA_JWT not set");
   return t;
 }
