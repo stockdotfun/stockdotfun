@@ -50,7 +50,8 @@ export async function POST(request: Request): Promise<Response> {
     const telegram = optional(form.get("telegram"));
 
     const contentHash = await sha256Hex(bytes);
-    const imageUri = await pinFile(bytes, `${symbol}-${contentHash.slice(0, 12)}`, image.type);
+    const safeSymbol = symbol.replace(/[^\x20-\x7E]/g, "") || "token";
+    const imageUri = await pinFile(bytes, `${safeSymbol}-${contentHash.slice(0, 12)}`, image.type);
 
     const metadata: TokenMetadata = {
       name,

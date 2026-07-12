@@ -61,7 +61,12 @@ export async function uploadTokenLaunchMetadata(
   input: LaunchMetadataInput,
 ): Promise<UploadResult> {
   const fd = new FormData();
-  fd.append("image", input.image);
+  // Use a fixed ASCII filename. The uploaded file's original name can contain
+  // characters (e.g. "•") outside Latin-1, which can't be encoded into the
+  // multipart Content-Disposition header and makes fetch throw a ByteString
+  // error before sending. The server re-names the file for pinning regardless.
+  const ext = (input.image.type.split("/")[1] || "png").replace(/[^a-z0-9]/gi, "");
+  fd.append("image", input.image, `meme.${ext}`);
   fd.append("name", input.name);
   fd.append("symbol", input.symbol);
   fd.append("description", input.description);
