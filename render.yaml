@@ -1,21 +1,22 @@
-# One-click Render deploy for the StockDotFun V2 indexer.
-# Render dashboard → New → Blueprint → point at this repo (root dir: indexer).
-# Then set the two secret env vars marked `sync: false` in the dashboard:
-#   DATABASE_URL          (Supabase DIRECT connection, port 5432 — NOT 6543)
-#   PONDER_RPC_URL_4663   (optional; defaults to the public RPC)
+# Render Blueprint (must live at repo ROOT). Deploys the StockDotFun V2 indexer
+# from the indexer/ subfolder (rootDir below).
+#
+# Render → New + → Blueprint → connect this repo. It reads this file.
+# Then set DATABASE_URL in the dashboard = your Supabase connection string
+# (session pooler port 5432 recommended; direct 5432 also works on Render).
 services:
   - type: web
     name: stockdotfun-indexer
     runtime: node
     rootDir: indexer
-    plan: starter
+    plan: starter # always-on. Use "free" to trial (it sleeps after 15 min idle).
     buildCommand: npm ci --no-audit --no-fund
     startCommand: npm run start
     healthCheckPath: /ready
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
-        sync: false # set in dashboard: Supabase direct connection (5432)
+        sync: false # set in dashboard: Supabase connection string
       - key: PONDER_RPC_URL_4663
         sync: false # optional; else defaults to public RHC RPC
       - key: FACTORY_ADDRESS
