@@ -41,8 +41,7 @@ function toDto(row: any) {
   };
 }
 
-app.get("/health", (c) => c.json({ ok: true }));
-
+// Ponder serves /health and /ready internally; we expose app data below.
 app.get("/tokens", async (c) => {
   const stock = c.req.query("stock");
   const rows = await db
@@ -98,7 +97,7 @@ app.get("/creators/:creator/tokens", async (c) => {
   return c.json(rows.map(toDto));
 });
 
-app.get("/metrics", async (c) => {
+app.get("/stats", async (c) => {
   const rows = await db.select().from(schema.protocolMetrics).where(eq(schema.protocolMetrics.id, "global")).limit(1);
   return c.json(rows[0] ?? { totalTokens: 0, totalGraduated: 0, totalVolumeQuote: "0" });
 });

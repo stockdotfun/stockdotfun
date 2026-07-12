@@ -1,0 +1,7 @@
+node_modules
+.ponder
+ponder-env.d.ts
+generated
+.env
+.env.local
+*.log
