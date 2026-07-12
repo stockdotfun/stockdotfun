@@ -15,16 +15,13 @@ import { useSupportedAssets } from "@/hooks/useSupportedAssets";
 import { useLaunchConfig } from "@/hooks/useLaunchConfig";
 import { useCreateToken } from "@/hooks/useCreateToken";
 import { useUploadTokenImage } from "@/hooks/useUploadTokenImage";
+import {
+  uploadTokenLaunchMetadata,
+  metadataStorageConfigured,
+} from "@/lib/storage/upload";
 import { useWalletNetwork } from "@/lib/web3/hooks";
-import type { CreatorRewardPreference } from "@/types/token";
 
 const STEPS = ["Meme", "Pair", "Rewards", "Review"] as const;
-
-const PREFS: { value: CreatorRewardPreference; label: string; hint: string }[] = [
-  { value: "eth", label: "ETH", hint: "Native asset" },
-  { value: "stock", label: "Stock token", hint: "The pair you chose" },
-  { value: "split", label: "50/50 split", hint: "Half and half" },
-];
 
 export default function CreateCoinWizard() {
   const [step, setStep] = useState(0);
@@ -41,8 +38,13 @@ export default function CreateCoinWizard() {
   // Step 2 — pair
   const [stockSymbol, setStockSymbol] = useState<string | null>(null);
 
-  // Step 3 — rewards
-  const [pref, setPref] = useState<CreatorRewardPreference | null>(null);
+  // Step 3 — rewards. In V2 both holders and creators earn the paired stock
+  // token (converted from fees by the treasury); there is no preference choice.
+  const pref = "stock" as const;
+
+  // Metadata pinning (Part 8) happens at launch, before the on-chain tx.
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const { assets, enabledAssets } = useSupportedAssets();
   const launch = useLaunchConfig();
@@ -59,11 +61,11 @@ export default function CreateCoinWizard() {
       case 1:
         return !!selectedAsset && selectedAsset.enabled;
       case 2:
-        return !!pref;
+        return true; // informational in V2 — no reward choice to make
       default:
         return true;
     }
-  }, [step, name, cleanTicker, image.file, selectedAsset, pref]);
+  }, [step, name, cleanTicker, image.file, selectedAsset]);
 
   const launchBlockers: string[] = [];
   if (!launch.contractsConfigured)
@@ -75,17 +77,40 @@ export default function CreateCoinWizard() {
     launchBlockers.push(
       `${selectedAsset.symbol} Stock Token address is not configured yet.`,
     );
+  if (!metadataStorageConfigured)
+    launchBlockers.push(
+      "Permanent metadata storage is not configured (set PINATA_JWT).",
+    );
 
-  const onLaunch = () => {
-    if (!selectedAsset?.address || !pref) return;
-    // TODO(storage): upload image + metadata JSON, pass real metadataURI.
-    create.createToken({
-      name: name.trim(),
-      symbol: cleanTicker,
-      metadataURI: "",
-      stockAssetAddress: selectedAsset.address,
-      creatorRewardPreference: pref,
-    });
+  const onLaunch = async () => {
+    if (!selectedAsset?.address || !image.file) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      // 1) Pin image + metadata JSON to IPFS; the factory rejects a blank URI.
+      const { metadataUri } = await uploadTokenLaunchMetadata({
+        image: image.file,
+        name: name.trim(),
+        symbol: cleanTicker,
+        description: description.trim() || name.trim(),
+        stockSymbol: selectedAsset.symbol,
+        stockAddress: selectedAsset.address,
+        website: website.trim() || undefined,
+        twitter: twitter.trim() || undefined,
+        telegram: telegram.trim() || undefined,
+      });
+      // 2) Launch with the permanent metadata URI.
+      create.createToken({
+        name: name.trim(),
+        symbol: cleanTicker,
+        metadataURI: metadataUri,
+        stockAssetAddress: selectedAsset.address,
+      });
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : "Metadata upload failed.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -266,43 +291,20 @@ export default function CreateCoinWizard() {
 
           {step === 2 && stockSymbol && (
             <div className="space-y-5">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Creator reward preference *
-                </span>
-                <div className="mt-2 grid grid-cols-3 gap-2.5">
-                  {PREFS.map((p) => (
-                    <button
-                      key={p.value}
-                      type="button"
-                      onClick={() => setPref(p.value)}
-                      className={`rounded-2xl border px-3 py-3.5 text-center transition-all ${
-                        pref === p.value
-                          ? "-translate-y-0.5 border-primary/60 bg-primary/5"
-                          : "border-border bg-card hover:border-primary/40"
-                      }`}
-                    >
-                      <span className="block text-[13px] font-semibold text-foreground">
-                        {p.value === "stock" ? (
-                          <span className="inline-flex items-center gap-1.5">
-                            <StockLogo ticker={stockSymbol} size={12} brandColor />
-                            {stockSymbol}
-                          </span>
-                        ) : (
-                          p.label
-                        )}
-                      </span>
-                      <span className="mt-0.5 block text-[10.5px] text-muted-foreground">
-                        {p.hint}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4">
+                <p className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
+                  <StockLogo ticker={stockSymbol} size={14} brandColor />
+                  Holders and creators both earn {stockSymbol}
+                </p>
+                <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted-foreground">
+                  A share of every trade is collected in ETH and converted to{" "}
+                  {stockSymbol} in batches, then distributed to eligible holders
+                  and to you as the creator. Conversion happens asynchronously —
+                  rewards show as “pending conversion” until the swap settles.
+                </p>
               </div>
               <FeeSplitPreview feeSplit={launch.feeSplit} stockSymbol={stockSymbol} />
-              {pref && (
-                <RewardRoutePreview stockSymbol={stockSymbol} preference={pref} />
-              )}
+              <RewardRoutePreview stockSymbol={stockSymbol} preference={pref} />
             </div>
           )}
 
@@ -341,9 +343,7 @@ export default function CreateCoinWizard() {
                   {(launch.feeSplit.totalBps / 100).toFixed(1)}%
                 </span>
                 <span className="text-muted-foreground">Creator route</span>
-                <span className="text-right text-foreground">
-                  {pref === "split" ? "ETH + stock" : pref === "stock" ? stockSymbol : "ETH"}
-                </span>
+                <span className="text-right text-foreground">{stockSymbol}</span>
                 <span className="text-muted-foreground">Launch cost</span>
                 <span className="text-right text-foreground">
                   {launch.launchCostLabel}
@@ -363,6 +363,13 @@ export default function CreateCoinWizard() {
                       {b}
                     </p>
                   ))}
+                </div>
+              )}
+
+              {uploadError && (
+                <div className="flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-[12.5px] text-destructive">
+                  <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+                  {uploadError}
                 </div>
               )}
 
@@ -406,11 +413,17 @@ export default function CreateCoinWizard() {
         ) : (
           <Button
             onClick={onLaunch}
-            disabled={launchBlockers.length > 0 || create.isSubmitting || create.isConfirming}
-            loading={create.isSubmitting || create.isConfirming}
+            disabled={
+              launchBlockers.length > 0 || uploading || create.isSubmitting || create.isConfirming
+            }
+            loading={uploading || create.isSubmitting || create.isConfirming}
             size="lg"
           >
-            {launch.contractsConfigured ? "Create token" : "Launch unavailable"}
+            {uploading
+              ? "Pinning metadata…"
+              : launch.contractsConfigured
+                ? "Create token"
+                : "Launch unavailable"}
           </Button>
         )}
       </div>

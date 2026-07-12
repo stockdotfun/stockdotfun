@@ -91,7 +91,18 @@ export const ETF_ASSETS: StockAsset[] = [
 ];
 
 /** Assets selectable as a meme-coin pair (stocks + ETFs, never base tokens). */
-export const PAIRABLE_ASSETS: StockAsset[] = [...STOCK_ASSETS, ...ETF_ASSETS];
+/**
+ * V2 pairable set. Only stocks with a VERIFIED Uniswap route in the on-chain
+ * StockRouteRegistry can be launched (the factory reverts otherwise), so the UI
+ * enables exactly those 8 — matching scripts/discover-stock-liquidity.mjs and
+ * the seeded routes. Everything else is shown disabled.
+ */
+const VERIFIED_V2_SYMBOLS = new Set(["AAPL", "GOOGL", "META", "MU", "NVDA", "SPCX", "TSLA", "SPY"]);
+
+export const PAIRABLE_ASSETS: StockAsset[] = [...STOCK_ASSETS, ...ETF_ASSETS].map((a) => ({
+  ...a,
+  enabled: VERIFIED_V2_SYMBOLS.has(a.symbol),
+}));
 
 /** Everything, including base assets. */
 export const ALL_ASSETS: StockAsset[] = [...BASE_ASSETS, ...PAIRABLE_ASSETS];

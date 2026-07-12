@@ -1,0 +1,43 @@
+{
+  "network": "Robinhood Chain",
+  "chainId": 4663,
+  "version": 2,
+  "status": "NOT_DEPLOYED",
+  "note": "Template. Fill from DeployRobinhoodV2 broadcast output. No V2 contract has been deployed to mainnet yet.",
+  "uniswapV4": {
+    "poolManager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+    "positionManager": "0x58daec3116aae6d93017baaea7749052e8a04fa7",
+    "v4Quoter": "0x8dc178efb8111bb0973dd9d722ebeff267c98f94",
+    "stateView": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+    "universalRouter": "0x8876789976decbfcbbbe364623c63652db8c0904",
+    "permit2": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+  },
+  "baseAssets": {
+    "weth": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "usdg": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168"
+  },
+  "v2Contracts": {
+    "versionRegistry": "",
+    "stockRouteRegistry": "",
+    "stockConversionAdapter": "",
+    "liquidityLocker": "",
+    "graduationAdapter": "",
+    "graduationManager": "",
+    "factory": "",
+    "creatorRewardVault": "",
+    "stockRewardTreasury": ""
+  },
+  "roles": {
+    "owner": "",
+    "keeper": "",
+    "protocolTreasury": ""
+  },
+  "verifiedStockRoutes": ["AAPL", "GOOGL", "META", "MU", "NVDA", "SPCX", "TSLA", "SPY"],
+  "v1": {
+    "status": "DEPRECATED_IMMUTABLE",
+    "factory": "0x7029f7289dcb3ea60c52ec89ea77089d420233d5",
+    "stockAssetRegistry": "0xe3f9dd5d4cd703d9f33fdf27d9d8f10e5f24349a",
+    "creatorRewardVault": "0x871373548174Bdfa294Ba946C7A4F4Eef1ef0264",
+    "noopRouterAdapter": "0x237d69213ba9e63f1cc3eb4936c9dc2bdc7407d7"
+  }
+}

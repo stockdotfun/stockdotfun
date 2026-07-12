@@ -1,0 +1,1713 @@
+{
+  "generatedAtBlock": "6897633",
+  "chainId": 4663,
+  "rpc": "https://rpc.mainnet.chain.robinhood.com",
+  "baseHop": {
+    "input": "ETH",
+    "fee": 460,
+    "tickSpacing": 9,
+    "hooks": "0x0000000000000000000000000000000000000000",
+    "id": "0x54f7883914619af9105355bf83ed678bcf9f63560218ac61c9963b9503d0ba32",
+    "liquidity": "2100937146886977009"
+  },
+  "thresholds": {
+    "minLiquidityRaw": "1",
+    "maxPriceImpactPct": 3,
+    "minVerifiedSizeWeth": 0.05,
+    "quoteSizesWeth": [
+      0.001,
+      0.01,
+      0.05,
+      0.1,
+      0.25,
+      0.5
+    ]
+  },
+  "uniswap": {
+    "poolManager": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+    "stateView": "0xF3334192D15450CdD385c8B70e03f9A6bD9E673b",
+    "v4Quoter": "0x8Dc178eFB8111BB0973Dd9d722ebeFF267c98F94"
+  },
+  "assets": [
+    {
+      "symbol": "AAPL",
+      "address": "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xda4116b5894ee7479e64eae9276e1a2944ef0e5ce863a299d296a15618deee01",
+          "liquidity": "38480811629338286"
+        }
+      },
+      "directPool": {
+        "fee": 50000,
+        "tickSpacing": 1000,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0xf4dda6b92ccfaa5db9d241651557195e3ef3959f1bbedb2acc38c57919a18052",
+        "liquidity": "111760825822665326872"
+      },
+      "poolsFound": 14,
+      "usdgPoolsFound": 7,
+      "maxCleanSizeWeth": 0.5,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797461",
+          "stockOut": "5683632776256367",
+          "stockOutFloat": 0.005683632776256367,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974538",
+          "stockOut": "56834773760402923",
+          "stockOutFloat": 0.05683477376040292,
+          "priceImpactPct": 0.002734170594609342
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872618",
+          "stockOut": "284143945334821910",
+          "stockOutFloat": 0.2841439453348219,
+          "priceImpactPct": 0.013263868191448758
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179745055",
+          "stockOut": "568213082164661035",
+          "stockOutFloat": 0.568213082164661,
+          "priceImpactPct": 0.0264259615088136
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449361279",
+          "stockOut": "1419971908212442924",
+          "stockOutFloat": 1.419971908212443,
+          "priceImpactPct": 0.06589347964632841
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898718025",
+          "stockOut": "2838076433455497432",
+          "stockOutFloat": 2.8380764334554973,
+          "priceImpactPct": 0.13160437417102377
+        }
+      ]
+    },
+    {
+      "symbol": "AMD",
+      "address": "0x86923f96303D656E4aa86D9d42D1e57ad2023fdC",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xde9f85fdd9e05a943a52f2c69ffafe3064a3287df03d02c9b431bc92d4781274",
+          "liquidity": "52183525803747"
+        }
+      },
+      "directPool": {
+        "fee": 50000,
+        "tickSpacing": 1000,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x7299841b076c2e7021cc1cad26b0f96046a32bd5212851b68ee3cf1958f57e3d",
+        "liquidity": "88392194281017661328"
+      },
+      "poolsFound": 6,
+      "usdgPoolsFound": 4,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797454",
+          "stockOut": "3152287454882796",
+          "stockOutFloat": 0.003152287454882796,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974538",
+          "stockOut": "31121168026086912",
+          "stockOutFloat": 0.03112116802608691,
+          "priceImpactPct": 1.2743334118175742
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89873436",
+          "stockOut": "62380881660713186",
+          "stockOutFloat": 0.062380881660713185,
+          "priceImpactPct": 60.42183173105795
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179746691",
+          "stockOut": "62380883236226955",
+          "stockOutFloat": 0.06238088323622695,
+          "priceImpactPct": 80.21091536572882
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449365369",
+          "stockOut": "62380883846867184",
+          "stockOutFloat": 0.062380883846867186,
+          "priceImpactPct": 92.08436606880618
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898726205",
+          "stockOut": "62380884015909973",
+          "stockOutFloat": 0.06238088401590998,
+          "priceImpactPct": 96.04218302367799
+        }
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "address": "0x12f190a9F9d7D37a250758b26824B97CE941bF54",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x6d11efb818427471a69a8a0772fa9049086060a1b0dc9cad611f4a024ebb7378",
+          "liquidity": "6547326489689"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0xf50fb6880e6e2d57e9f01a072fbb2c6a196188303582bb63b625c6c7f4b526ad",
+        "liquidity": "396987213892"
+      },
+      "poolsFound": 3,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797470",
+          "stockOut": "734825287503107",
+          "stockOutFloat": 0.000734825287503107,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974701",
+          "stockOut": "7234069494983677",
+          "stockOutFloat": 0.007234069494983677,
+          "priceImpactPct": 1.5538847395328625
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89873436",
+          "stockOut": "33833713111684951",
+          "stockOutFloat": 0.033833713111684954,
+          "priceImpactPct": 7.913585209758034
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179746691",
+          "stockOut": "62611485627710114",
+          "stockOutFloat": 0.06261148562771011,
+          "priceImpactPct": 14.794051467036128
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449365369",
+          "stockOut": "127866988890318151",
+          "stockOutFloat": 0.12786698889031814,
+          "priceImpactPct": 30.395977893029436
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898726205",
+          "stockOut": "195937606973970448",
+          "stockOutFloat": 0.19593760697397042,
+          "priceImpactPct": 46.67096783243405
+        }
+      ]
+    },
+    {
+      "symbol": "BABA",
+      "address": "0xad25Ac6C84D497db898fa1E8387bf6Af3532a1c4",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xa51ac29be730bdcb54e31de0876b01fc0a34a236defdeba3c5e305e267f5523a",
+          "liquidity": "10057835214493"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 1,
+      "usdgPoolsFound": 1,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797438",
+          "stockOut": "1814811889031134",
+          "stockOutFloat": 0.001814811889031134,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974377",
+          "stockOut": "17859807328730020",
+          "stockOutFloat": 0.01785980732873002,
+          "priceImpactPct": 1.5886581045886805
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871815",
+          "stockOut": "83408365289062765",
+          "stockOutFloat": 0.08340836528906277,
+          "priceImpactPct": 8.08042883872483
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179743719",
+          "stockOut": "154109461466062457",
+          "stockOutFloat": 0.15410946146606247,
+          "priceImpactPct": 15.08240473984539
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449357938",
+          "stockOut": "313605691709595263",
+          "stockOutFloat": 0.3136056917095953,
+          "priceImpactPct": 30.878634065590425
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898711343",
+          "stockOut": "478776139450207932",
+          "stockOutFloat": 0.4787761394502079,
+          "priceImpactPct": 47.236830181247036
+        }
+      ]
+    },
+    {
+      "symbol": "BE",
+      "address": "0x822CC93fFD030293E9842c30BBD678F530701867",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x4afb9b1e7fa9dfcd9e3181530b713c8bd150e8505e7a0ab0b593cd22ac53733c",
+          "liquidity": "3035586331429"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 2,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.001,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797440",
+          "stockOut": "656046872497902",
+          "stockOutFloat": 0.000656046872497902,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974404",
+          "stockOut": "6356193876176888",
+          "stockOutFloat": 0.006356193876176888,
+          "priceImpactPct": 3.113723384189826
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871950",
+          "stockOut": "27917513708124076",
+          "stockOutFloat": 0.027917513708124075,
+          "priceImpactPct": 14.89171009434741
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179743719",
+          "stockOut": "48469730071067240",
+          "stockOutFloat": 0.04846973007106724,
+          "priceImpactPct": 26.118495334764003
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449357938",
+          "stockOut": "86817561647059276",
+          "stockOutFloat": 0.08681756164705928,
+          "priceImpactPct": 47.066244631880686
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898711343",
+          "stockOut": "117914355948871413",
+          "stockOutFloat": 0.11791435594887141,
+          "priceImpactPct": 64.05306971439042
+        }
+      ]
+    },
+    {
+      "symbol": "COIN",
+      "address": "0x6330D8C3178a418788dF01a47479c0ce7CCF450b",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x26b3bce38efcaa5c9d4d04f659bdd752fc541d21099d3c2016a02998912c8ae5",
+          "liquidity": "8137598903034"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0xb89bf159829295ef79c13c9824f677a1819d437c9b1082b2578c8ad0b5c307a3",
+        "liquidity": "822333266722"
+      },
+      "poolsFound": 3,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797440",
+          "stockOut": "1048423683021029",
+          "stockOutFloat": 0.001048423683021029,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974404",
+          "stockOut": "10327571201566694",
+          "stockOutFloat": 0.010327571201566695,
+          "priceImpactPct": 1.494296925763483
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871950",
+          "stockOut": "48421971591739547",
+          "stockOutFloat": 0.04842197159173955,
+          "priceImpactPct": 7.629000802019636
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179743719",
+          "stockOut": "89849401077579192",
+          "stockOutFloat": 0.0898494010775792,
+          "priceImpactPct": 14.300485068518787
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449357938",
+          "stockOut": "184620870546462870",
+          "stockOutFloat": 0.18462087054646287,
+          "priceImpactPct": 29.56249518725922
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898711343",
+          "stockOut": "284730248479631697",
+          "stockOutFloat": 0.2847302484796317,
+          "priceImpactPct": 45.68412501724827
+        }
+      ]
+    },
+    {
+      "symbol": "CRCL",
+      "address": "0xdF0992E440dD0be65BD8439b609d6D4366bf1CB5",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xc2398f2cdc808a3753ca56968b0bbf9b6f382f2f5bade43353c41792778e9c82",
+          "liquidity": "12601309304384"
+        }
+      },
+      "directPool": {
+        "fee": 100,
+        "tickSpacing": 1,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x1fc3e834049a557d970408e908516a0f4aa964fa24f3f2262e215d786080b773",
+        "liquidity": "1096440811995"
+      },
+      "poolsFound": 5,
+      "usdgPoolsFound": 3,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797431",
+          "stockOut": "2813411764537147",
+          "stockOutFloat": 0.002813411764537147,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974311",
+          "stockOut": "27689806847945581",
+          "stockOutFloat": 0.02768980684794558,
+          "priceImpactPct": 1.579259755100193
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871487",
+          "stockOut": "129368344524295431",
+          "stockOutFloat": 0.12936834452429544,
+          "priceImpactPct": 8.03454641444662
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179742793",
+          "stockOut": "239131310710279017",
+          "stockOutFloat": 0.23913131071027902,
+          "priceImpactPct": 15.00308851888943
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449355624",
+          "stockOut": "487100344234831858",
+          "stockOutFloat": 0.4871003442348319,
+          "priceImpactPct": 30.7459575772453
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898706715",
+          "stockOut": "744406250252843918",
+          "stockOutFloat": 0.7444062502528439,
+          "priceImpactPct": 47.081599669409854
+        }
+      ]
+    },
+    {
+      "symbol": "CRWV",
+      "address": "0x5f10A1C971B69e47e059e1dC91901B59b3fB49C3",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xd7ada31b9746cb0b765c14ab756e4fea8f3ff800ed6b2ed2d549180398e75fb7",
+          "liquidity": "10721827927665"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x6ec7c1763233ed1a7969d2cd00a4d06ee950ea64dc3d588008818efd3b4be1c5",
+        "liquidity": "724900826634"
+      },
+      "poolsFound": 3,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797431",
+          "stockOut": "2066032177014375",
+          "stockOutFloat": 0.002066032177014375,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974311",
+          "stockOut": "20331744403849755",
+          "stockOutFloat": 0.020331744403849755,
+          "priceImpactPct": 1.5903787460310737
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871487",
+          "stockOut": "94947217142535045",
+          "stockOutFloat": 0.09494721714253504,
+          "priceImpactPct": 8.087378116498323
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179742793",
+          "stockOut": "175418070976559552",
+          "stockOutFloat": 0.17541807097655956,
+          "priceImpactPct": 15.094221218734184
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449355624",
+          "stockOut": "356917625143218128",
+          "stockOutFloat": 0.3569176251432181,
+          "priceImpactPct": 30.897954230509594
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898706715",
+          "stockOut": "544820490905994057",
+          "stockOutFloat": 0.544820490905994,
+          "priceImpactPct": 47.259244365369504
+        }
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "address": "0x2e0847E8910a9732eB3fb1bb4b70a580ADAD4FE3",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xef22239f96c6ac95dcd57b90c6b14c0cc8c3c16844def34daef68dc9dd945344",
+          "liquidity": "134440670090414984"
+        }
+      },
+      "directPool": {
+        "fee": 80000,
+        "tickSpacing": 1600,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0xeecc9089d7079fd7edefe3e1bab7d2ce2c28b97fe04ea1b73f6f6b134740b4a0",
+        "liquidity": "234990954894126918"
+      },
+      "poolsFound": 10,
+      "usdgPoolsFound": 7,
+      "maxCleanSizeWeth": 0.5,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797431",
+          "stockOut": "5015126136946275",
+          "stockOutFloat": 0.005015126136946275,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974311",
+          "stockOut": "50150963939861902",
+          "stockOutFloat": 0.0501509639398619,
+          "priceImpactPct": 0.000593065045062513
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871487",
+          "stockOut": "250747594442345024",
+          "stockOutFloat": 0.250747594442345,
+          "priceImpactPct": 0.0034744509832096426
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179742793",
+          "stockOut": "501477066326583023",
+          "stockOutFloat": 0.5014770663265831,
+          "priceImpactPct": 0.007088030704260895
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449355624",
+          "stockOut": "1253556757808101534",
+          "stockOutFloat": 1.2535567578081017,
+          "priceImpactPct": 0.017927878368673156
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898706715",
+          "stockOut": "2505923716058076120",
+          "stockOutFloat": 2.505923716058076,
+          "priceImpactPct": 0.065376318373489
+        }
+      ]
+    },
+    {
+      "symbol": "INTC",
+      "address": "0xc72b96e0E48ecd4DC75E1e45396e26300BC39681",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xfd5e33ebb24801160e84873145a2713ad9a69153a3625eb3d92c6acc153193ea",
+          "liquidity": "8794522676188"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x78bb0cebf41302dc136946a5124eed9dabc84acd86b6cc19afb0cb7577628271",
+        "liquidity": "629564181230"
+      },
+      "poolsFound": 3,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797431",
+          "stockOut": "1389930180166185",
+          "stockOutFloat": 0.001389930180166185,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974311",
+          "stockOut": "13678258010991526",
+          "stockOutFloat": 0.013678258010991526,
+          "priceImpactPct": 1.5903229804240526
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872193",
+          "stockOut": "63876710596847062",
+          "stockOutFloat": 0.06387671059684706,
+          "priceImpactPct": 8.086447062816172
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744205",
+          "stockOut": "118014523696491256",
+          "stockOutFloat": 0.11801452369649126,
+          "priceImpactPct": 15.093200089819604
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359153",
+          "stockOut": "240121491898644511",
+          "stockOutFloat": 0.2401214918986445,
+          "priceImpactPct": 30.896819041677404
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898713773",
+          "stockOut": "366537527638925952",
+          "stockOutFloat": 0.36653752763892594,
+          "priceImpactPct": 47.25813816128499
+        }
+      ]
+    },
+    {
+      "symbol": "META",
+      "address": "0xc0D6457C16Cc70d6790Dd43521C899C87ce02f35",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x2a862e4b43c6a9a494a94f79eb920caf87be597bacba06567bfd67139f41ad16",
+          "liquidity": "1554607836654813"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 4,
+      "usdgPoolsFound": 4,
+      "maxCleanSizeWeth": 0.5,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797445",
+          "stockOut": "2657766967172302",
+          "stockOutFloat": 0.002657766967172302,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974453",
+          "stockOut": "26567104674479177",
+          "stockOutFloat": 0.026567104674479175,
+          "priceImpactPct": 0.03975140550069867
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872193",
+          "stockOut": "132600885903627340",
+          "stockOutFloat": 0.13260088590362734,
+          "priceImpactPct": 0.21631878079484412
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744205",
+          "stockOut": "264617493220999581",
+          "stockOutFloat": 0.2646174932209996,
+          "priceImpactPct": 0.43615693570905334
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359153",
+          "stockOut": "657200016404808356",
+          "stockOutFloat": 0.6572000164048083,
+          "priceImpactPct": 1.089896214034436
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898713773",
+          "stockOut": "1300171742730560251",
+          "stockOutFloat": 1.3001717427305604,
+          "priceImpactPct": 2.160591294137282
+        }
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "address": "0xe93237C50D904957Cf27E7B1133b510C669c2e74",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x79829e8244d46dba26fcd0e42776ab67403af2592e82ff14dce031c0cb09823c",
+          "liquidity": "5091756350760"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 3,
+      "usdgPoolsFound": 3,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797445",
+          "stockOut": "485952686269035",
+          "stockOutFloat": 0.000485952686269035,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974453",
+          "stockOut": "4780638427248707",
+          "stockOutFloat": 0.004780638427248707,
+          "priceImpactPct": 1.6233768774347013
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872193",
+          "stockOut": "22294366461664126",
+          "stockOutFloat": 0.022294366461664127,
+          "priceImpactPct": 8.244703274172526
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744205",
+          "stockOut": "41128489529924217",
+          "stockOutFloat": 0.04112848952992421,
+          "priceImpactPct": 15.36523885546648
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359153",
+          "stockOut": "83403908808437051",
+          "stockOutFloat": 0.08340390880843705,
+          "priceImpactPct": 31.348124074562545
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898713773",
+          "stockOut": "126874909812890233",
+          "stockOutFloat": 0.12687490981289024,
+          "priceImpactPct": 47.783019459368006
+        }
+      ]
+    },
+    {
+      "symbol": "MU",
+      "address": "0xfF080c8ce2E5feadaCa0Da81314Ae59D232d4afD",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x6fa3ee0048e78bf0a513eb0ab56f482944a767c21db990fcf555605e69f05659",
+          "liquidity": "929187902107096"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x5fb97aef826b674c4bc76707563816f171043a3b1bf91431b7f82acd6381876b",
+        "liquidity": "1268796481770"
+      },
+      "poolsFound": 7,
+      "usdgPoolsFound": 5,
+      "maxCleanSizeWeth": 0.5,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797445",
+          "stockOut": "1797033020560411",
+          "stockOutFloat": 0.001797033020560411,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974453",
+          "stockOut": "17960501168860630",
+          "stockOutFloat": 0.01796050116886063,
+          "priceImpactPct": 0.05469591616305003
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872197",
+          "stockOut": "89584487963870703",
+          "stockOutFloat": 0.08958448796387071,
+          "priceImpactPct": 0.29733795772604044
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744213",
+          "stockOut": "178626882028553862",
+          "stockOutFloat": 0.17862688202855387,
+          "priceImpactPct": 0.5989984686823213
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359172",
+          "stockOut": "442550267917989171",
+          "stockOutFloat": 0.4425502679179892,
+          "priceImpactPct": 1.4931249777528688
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898713812",
+          "stockOut": "872017428207973384",
+          "stockOutFloat": 0.8720174282079733,
+          "priceImpactPct": 2.9492036895313545
+        }
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 3000,
+          "tickSpacing": 60,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x3bb34a44f1b2b5f32c034c38a53065a521a47b199700fa9bd19d60985ff24bf1",
+          "liquidity": "2307469679190667"
+        }
+      },
+      "directPool": {
+        "fee": 50000,
+        "tickSpacing": 1000,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0xaa8039d8e39d2bbcae23762e71f5a12162875a61848f0d96914c827f61877ef6",
+        "liquidity": "210384873035309601663"
+      },
+      "poolsFound": 14,
+      "usdgPoolsFound": 7,
+      "maxCleanSizeWeth": 0.25,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797445",
+          "stockOut": "8513752981658846",
+          "stockOutFloat": 0.008513752981658846,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974453",
+          "stockOut": "85096576427377463",
+          "stockOutFloat": 0.08509657642737746,
+          "priceImpactPct": 0.04810262794705533
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872197",
+          "stockOut": "424573932821921472",
+          "stockOutFloat": 0.42457393282192146,
+          "priceImpactPct": 0.2616275720989658
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744213",
+          "stockOut": "846886303447586350",
+          "stockOutFloat": 0.8468863034475863,
+          "priceImpactPct": 0.5272639138073298
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359172",
+          "stockOut": "2100433280716300824",
+          "stockOutFloat": 2.1004332807163006,
+          "priceImpactPct": 1.3157518081035047
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898713812",
+          "stockOut": "4117981809265227991",
+          "stockOutFloat": 4.117981809265228,
+          "priceImpactPct": 3.2628309010941603
+        }
+      ]
+    },
+    {
+      "symbol": "ORCL",
+      "address": "0xb0992820E760d836549ba69BC7598b4af75dEE03",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x29818287f1b0a3e9cf8f36114cd8acd86cc669d78ab27cfe860295c7ef09d0c6",
+          "liquidity": "8327772403695"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x7ff028999aa71df80148b936f8aa272e8fbd7b60109e66cbd849dc0be76f9471",
+        "liquidity": "480341386756"
+      },
+      "poolsFound": 3,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797445",
+          "stockOut": "1249308164958929",
+          "stockOutFloat": 0.001249308164958929,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974453",
+          "stockOut": "12294192818090687",
+          "stockOutFloat": 0.012294192818090688,
+          "priceImpactPct": 1.5919917685412788
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872197",
+          "stockOut": "57408294478048508",
+          "stockOutFloat": 0.05740829447804851,
+          "priceImpactPct": 8.095862833113232
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744213",
+          "stockOut": "106054994326572327",
+          "stockOutFloat": 0.10605499432657232,
+          "priceImpactPct": 15.109020095086878
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359172",
+          "stockOut": "215746858977035291",
+          "stockOutFloat": 0.2157468589770353,
+          "priceImpactPct": 30.92277309045588
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898713812",
+          "stockOut": "329265929953781939",
+          "stockOutFloat": 0.32926592995378196,
+          "priceImpactPct": 47.28827695373198
+        }
+      ]
+    },
+    {
+      "symbol": "PLTR",
+      "address": "0x894E1EC2D74FFE5AEF8Dc8A9e84686acCB964F2A",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 910000,
+          "tickSpacing": 18200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x0e96c295823855f14afd84e0693a1a0eb9652eb74b0748b913c995d07491107b",
+          "liquidity": "20732272887285"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x2eaa3bc103861a5b6e97584366dd9d8282bbfa1607b105a6c9f8dd6b1307c8fa",
+        "liquidity": "5474863693539"
+      },
+      "poolsFound": 6,
+      "usdgPoolsFound": 4,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797445",
+          "stockOut": "1318840026342324",
+          "stockOutFloat": 0.001318840026342324,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974448",
+          "stockOut": "13105331894501487",
+          "stockOutFloat": 0.013105331894501488,
+          "priceImpactPct": 0.6298593253355689
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872167",
+          "stockOut": "63742236259645818",
+          "stockOutFloat": 0.06374223625964581,
+          "priceImpactPct": 3.3359088494928857
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744153",
+          "stockOut": "123287722444937997",
+          "stockOutFloat": 0.123287722444938,
+          "priceImpactPct": 6.518061339960523
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359024",
+          "stockOut": "280515860910363738",
+          "stockOutFloat": 0.28051586091036373,
+          "priceImpactPct": 14.920428465202873
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898714278",
+          "stockOut": "487937217078148698",
+          "stockOutFloat": 0.4879372170781487,
+          "priceImpactPct": 26.005094274944685
+        }
+      ]
+    },
+    {
+      "symbol": "SNDK",
+      "address": "0xB90A19fF0Af67f7779afF50A882A9CfF42446400",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x2707cb88a6a40fa0f948f58958051ba097d6f6a3cf7f87929bd68ccc5becea24",
+          "liquidity": "2289156259073"
+        }
+      },
+      "directPool": {
+        "fee": 100,
+        "tickSpacing": 1,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x0f6951750c817d6ba3555d267bb9b0cdbfcae805b87164a8103def7bf05eb848",
+        "liquidity": "1378028598367"
+      },
+      "poolsFound": 5,
+      "usdgPoolsFound": 3,
+      "maxCleanSizeWeth": 0.001,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797446",
+          "stockOut": "894692674340282",
+          "stockOutFloat": 0.000894692674340282,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974463",
+          "stockOut": "7742826004571548",
+          "stockOutFloat": 0.007742826004571548,
+          "priceImpactPct": 13.458260846040094
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872243",
+          "stockOut": "24224381661415549",
+          "stockOutFloat": 0.024224381661415547,
+          "priceImpactPct": 45.84870904575622
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744306",
+          "stockOut": "33006745124937119",
+          "stockOutFloat": 0.03300674512493712,
+          "priceImpactPct": 63.10828726827875
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359405",
+          "stockOut": "42182512483383746",
+          "stockOutFloat": 0.04218251248338374,
+          "priceImpactPct": 81.14100464073307
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898714278",
+          "stockOut": "46490589862787494",
+          "stockOutFloat": 0.04649058986278749,
+          "priceImpactPct": 89.60747277894767
+        }
+      ]
+    },
+    {
+      "symbol": "SPCX",
+      "address": "0x4a0E65A3EcceC6dBe60AE065F2e7bb85Fae35eEa",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xcb6ffbcc84359535c2cc0a5688c0a76520ea6e0a4820fddd3ac8d7880e576370",
+          "liquidity": "46200385830136467"
+        }
+      },
+      "directPool": {
+        "fee": 50000,
+        "tickSpacing": 1000,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x7cf7a805185bce4766278dc4e4047fbc5d8e2bc8a33b3268270d43b86e10236b",
+        "liquidity": "229681727446371527854"
+      },
+      "poolsFound": 14,
+      "usdgPoolsFound": 7,
+      "maxCleanSizeWeth": 0.5,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797446",
+          "stockOut": "12113734573713501",
+          "stockOutFloat": 0.0121137345737135,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974463",
+          "stockOut": "121133935647770860",
+          "stockOutFloat": 0.12113393564777086,
+          "priceImpactPct": 0.002815060329564023
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872243",
+          "stockOut": "605592223870439360",
+          "stockOutFloat": 0.6055922238704394,
+          "priceImpactPct": 0.015602919918789038
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744301",
+          "stockOut": "1210990813099137406",
+          "stockOutFloat": 1.2109908130991374,
+          "priceImpactPct": 0.031587638798269424
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359395",
+          "stockOut": "3026025911852703943",
+          "stockOutFloat": 3.0260259118527038,
+          "priceImpactPct": 0.07950418794533398
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898714257",
+          "stockOut": "6047216597919121888",
+          "stockOutFloat": 6.047216597919121,
+          "priceImpactPct": 0.15933466065155555
+        }
+      ]
+    },
+    {
+      "symbol": "TSLA",
+      "address": "0x322F0929c4625eD5bAd873c95208D54E1c003b2d",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 3000,
+          "tickSpacing": 60,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x8517f8071ae5b831b738052f12125e8e3d6c158b78728aa44ce3b25e5104d32e",
+          "liquidity": "13023278034543082"
+        }
+      },
+      "directPool": {
+        "fee": 50000,
+        "tickSpacing": 1000,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0xb2a6d67bf3fc511d11cac788a531655f5a7b60cd31c8ff386f0476121741e751",
+        "liquidity": "236278330452635901361"
+      },
+      "poolsFound": 18,
+      "usdgPoolsFound": 8,
+      "maxCleanSizeWeth": 0.5,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797446",
+          "stockOut": "4404916323321549",
+          "stockOutFloat": 0.004404916323321549,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974462",
+          "stockOut": "44046478463487475",
+          "stockOutFloat": 0.04404647846348747,
+          "priceImpactPct": 0.006094939224621232
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872241",
+          "stockOut": "220172151751243663",
+          "stockOutFloat": 0.22017215175124366,
+          "priceImpactPct": 0.03344645365624954
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744301",
+          "stockOut": "440193757921364472",
+          "stockOutFloat": 0.4401937579213645,
+          "priceImpactPct": 0.0676231712310682
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359395",
+          "stockOut": "1099356835613516781",
+          "stockOutFloat": 1.0993568356135168,
+          "priceImpactPct": 0.17001414596304887
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898714257",
+          "stockOut": "2194965380939668093",
+          "stockOutFloat": 2.194965380939668,
+          "priceImpactPct": 0.34020081977205185
+        }
+      ]
+    },
+    {
+      "symbol": "USAR",
+      "address": "0xd917B029C761D264c6A312BBbcDA868658eF86a6",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x061a6e50ea9288db8b8cda2e4c9976dd9c295d91870cde18aaeb0bfd054beff4",
+          "liquidity": "11346412343531"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 2,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.001,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797446",
+          "stockOut": "9230280115310463",
+          "stockOutFloat": 0.009230280115310465,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974462",
+          "stockOut": "89419265218660376",
+          "stockOutFloat": 0.08941926521866038,
+          "priceImpactPct": 3.123996128417905
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89872241",
+          "stockOut": "392582604848319274",
+          "stockOutFloat": 0.3925826048483193,
+          "priceImpactPct": 14.935928283014055
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179744301",
+          "stockOut": "681324188247139921",
+          "stockOutFloat": 0.6813241882471399,
+          "priceImpactPct": 26.185968384966696
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449359395",
+          "stockOut": "1219471511469641700",
+          "stockOutFloat": 1.2194715114696417,
+          "priceImpactPct": 47.15343429515738
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898714257",
+          "stockOut": "1655282596857757823",
+          "stockOutFloat": 1.6552825968577578,
+          "priceImpactPct": 64.13364326588302
+        }
+      ]
+    },
+    {
+      "symbol": "QQQ",
+      "address": "0xD5f3879160bc7c32ebb4dC785F8a4F505888de68",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 10000,
+          "tickSpacing": 200,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0xd3d49eaab15eb8f4d1d480a8518fc3ce4e60ca81d69904b3e7dc53b4fc0ce2d9",
+          "liquidity": "5087657891011"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x7ba2c8a5f53ee4cda9ef07effe81bb8509efafb79a26d0e33b28ada879e5bb52",
+        "liquidity": "1190645364055"
+      },
+      "poolsFound": 5,
+      "usdgPoolsFound": 4,
+      "maxCleanSizeWeth": 0.001,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797439",
+          "stockOut": "2394934274428260",
+          "stockOutFloat": 0.00239493427442826,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974390",
+          "stockOut": "21484171557006720",
+          "stockOutFloat": 0.02148417155700672,
+          "priceImpactPct": 10.293272820041766
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89871879",
+          "stockOut": "73703101419993500",
+          "stockOutFloat": 0.0737031014199935,
+          "priceImpactPct": 38.45083582714306
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179743576",
+          "stockOut": null,
+          "stockOutFloat": null
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449357581",
+          "stockOut": null,
+          "stockOutFloat": null
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898710630",
+          "stockOut": null,
+          "stockOutFloat": null
+        }
+      ]
+    },
+    {
+      "symbol": "SGOV",
+      "address": "0x92FD66527192E3e61d4DDd13322Aa222DE86F9B5",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x8db521d272888af0c0622b8692059973343b3dec86b59abfcb08fe7cfa8d534d",
+          "liquidity": "4983505185053"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 2,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.001,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797417",
+          "stockOut": "1780515937649363",
+          "stockOutFloat": 0.001780515937649363,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974174",
+          "stockOut": "17248954091939763",
+          "stockOutFloat": 0.017248954091939765,
+          "priceImpactPct": 3.1238433354781714
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89870801",
+          "stockOut": "75729387114619790",
+          "stockOutFloat": 0.0757293871146198,
+          "priceImpactPct": 14.935457174735845
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179741422",
+          "stockOut": "131428269977872102",
+          "stockOutFloat": 0.1314282699778721,
+          "priceImpactPct": 26.185288657745076
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449352196",
+          "stockOut": "235239156613482013",
+          "stockOutFloat": 0.23523915661348202,
+          "priceImpactPct": 47.15258613769113
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898699860",
+          "stockOut": "319309993791007963",
+          "stockOutFloat": 0.31930999379100794,
+          "priceImpactPct": 64.13286878941831
+        }
+      ]
+    },
+    {
+      "symbol": "SLV",
+      "address": "0x411eFb0E7f985935DAec3D4C3ebaEa0d0AD7D89f",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x6ecd18498511f40fc79aa88e03516fdb7179661fc675179974c53f7b3122f480",
+          "liquidity": "13607726163041"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x8163aaf524cb1ccc5bba2c8eb4ec2569f8156b846094413e2b4bb19899f8a594",
+        "liquidity": "1408864128407"
+      },
+      "poolsFound": 3,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.01,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797417",
+          "stockOut": "3322895207600873",
+          "stockOutFloat": 0.003322895207600873,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974174",
+          "stockOut": "32700987038507301",
+          "stockOutFloat": 0.0327009870385073,
+          "priceImpactPct": 1.5888705617130183
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89870801",
+          "stockOut": "152717859014457516",
+          "stockOutFloat": 0.1527178590144575,
+          "priceImpactPct": 8.081447368471405
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179741422",
+          "stockOut": "282166102345993554",
+          "stockOutFloat": 0.28216610234599354,
+          "priceImpactPct": 15.084260947934869
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449352196",
+          "stockOut": "574182898102951148",
+          "stockOutFloat": 0.5741828981029512,
+          "priceImpactPct": 30.881612301278594
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898699860",
+          "stockOut": "876575404360584997",
+          "stockOutFloat": 0.876575404360585,
+          "priceImpactPct": 47.24026190440887
+        }
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "address": "0x117cc2133c37B721F49dE2A7a74833232B3B4C0C",
+      "status": "VERIFIED",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 50000,
+          "tickSpacing": 1000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x2030e8cd19e37be95e580dc4b921bd435a9ee435c194e616ab9178a3678905a1",
+          "liquidity": "448991847942128"
+        }
+      },
+      "directPool": {
+        "fee": 10000,
+        "tickSpacing": 200,
+        "hooks": "0x0000000000000000000000000000000000000000",
+        "id": "0x7d32bc830f40a330af8723b8bb50d4d6b0152297d659e9898e6a47b785686459",
+        "liquidity": "1338029478624"
+      },
+      "poolsFound": 6,
+      "usdgPoolsFound": 4,
+      "maxCleanSizeWeth": 0.1,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797417",
+          "stockOut": "2390632601045383",
+          "stockOutFloat": 0.002390632601045383,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974174",
+          "stockOut": "23875757545008398",
+          "stockOutFloat": 0.0238757575450084,
+          "priceImpactPct": 0.12786768419397188
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89870801",
+          "stockOut": "118703947711061168",
+          "stockOutFloat": 0.11870394771106117,
+          "priceImpactPct": 0.6924379269705017
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179741422",
+          "stockOut": "235742092997159453",
+          "stockOutFloat": 0.23574209299715945,
+          "priceImpactPct": 1.3892419545883272
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449352196",
+          "stockOut": "565283957549341348",
+          "stockOutFloat": 0.5652839575493414,
+          "priceImpactPct": 5.416841165446784
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898699860",
+          "stockOut": "735776063786151614",
+          "stockOutFloat": 0.7357760637861516,
+          "priceImpactPct": 38.445074039029734
+        }
+      ]
+    },
+    {
+      "symbol": "USO",
+      "address": "0xa30FA36Db767ad9eD3f7a60fC79526fB4d56D344",
+      "status": "LOW_LIQUIDITY",
+      "route": {
+        "via": "WETH->USDG->stock",
+        "usdgPool": {
+          "fee": 900000,
+          "tickSpacing": 18000,
+          "hooks": "0x0000000000000000000000000000000000000000",
+          "id": "0x24750df85cd4a817d02753fa8ab8ae0c173b41c88f76af16ab0a7e05d54d3876",
+          "liquidity": "4893567976663"
+        }
+      },
+      "directPool": null,
+      "poolsFound": 2,
+      "usdgPoolsFound": 2,
+      "maxCleanSizeWeth": 0.001,
+      "sizes": [
+        {
+          "wethIn": 0.001,
+          "usdgOut": "1797417",
+          "stockOut": "1724066461845941",
+          "stockOutFloat": 0.001724066461845941,
+          "priceImpactPct": 0
+        },
+        {
+          "wethIn": 0.01,
+          "usdgOut": "17974174",
+          "stockOut": "16700996747812933",
+          "stockOutFloat": 0.016700996747812932,
+          "priceImpactPct": 3.1302034033459436
+        },
+        {
+          "wethIn": 0.05,
+          "usdgOut": "89870801",
+          "stockOut": "73305453848191145",
+          "stockOutFloat": 0.07330545384819115,
+          "priceImpactPct": 14.96214853607938
+        },
+        {
+          "wethIn": 0.1,
+          "usdgOut": "179741422",
+          "stockOut": "127191475974586085",
+          "stockOutFloat": 0.12719147597458608,
+          "priceImpactPct": 26.225885840616947
+        },
+        {
+          "wethIn": 0.25,
+          "usdgOut": "449352196",
+          "stockOut": "227555646053263097",
+          "stockOutFloat": 0.22755564605326312,
+          "priceImpactPct": 47.204901646396735
+        },
+        {
+          "wethIn": 0.5,
+          "usdgOut": "898699860",
+          "stockOut": "308770443110720841",
+          "stockOutFloat": 0.3087704431107208,
+          "priceImpactPct": 64.18114383129716
+        }
+      ]
+    }
+  ]
+}

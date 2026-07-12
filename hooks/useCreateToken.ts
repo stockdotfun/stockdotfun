@@ -5,20 +5,12 @@ import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { factoryAbi } from "@/lib/contracts/abis";
 import { contractAddresses } from "@/lib/contracts/addresses";
 import { areContractsConfigured, explorerTxUrl } from "@/lib/config";
-import type { CreatorRewardPreference } from "@/types/token";
-
-const PREF_TO_UINT8: Record<CreatorRewardPreference, number> = {
-  eth: 0,
-  stock: 1,
-  split: 2,
-};
 
 export type CreateTokenParams = {
   name: string;
   symbol: string;
   metadataURI: string;
   stockAssetAddress: `0x${string}`;
-  creatorRewardPreference: CreatorRewardPreference;
 };
 
 /**
@@ -53,7 +45,6 @@ export function useCreateToken() {
             params.symbol,
             params.metadataURI,
             params.stockAssetAddress,
-            PREF_TO_UINT8[params.creatorRewardPreference],
           ],
         },
         {

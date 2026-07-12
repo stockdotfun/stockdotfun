@@ -4,6 +4,8 @@
  * artifacts (forge inspect <Contract> abi) once contracts are finalized.
  */
 
+// StockDotFunFactoryV2. In V2 the creator reward is always the paired stock
+// token (converted async by the treasury), so createToken takes no preference.
 export const factoryAbi = [
   {
     type: "function",
@@ -13,8 +15,7 @@ export const factoryAbi = [
       { name: "name", type: "string" },
       { name: "symbol", type: "string" },
       { name: "metadataURI", type: "string" },
-      { name: "stockAsset", type: "address" },
-      { name: "creatorRewardPreference", type: "uint8" },
+      { name: "stock", type: "address" },
     ],
     outputs: [
       { name: "token", type: "address" },
@@ -28,7 +29,8 @@ export const factoryAbi = [
       { name: "token", type: "address", indexed: true },
       { name: "pool", type: "address", indexed: true },
       { name: "creator", type: "address", indexed: true },
-      { name: "stockAsset", type: "address", indexed: false },
+      { name: "stock", type: "address", indexed: false },
+      { name: "holderVault", type: "address", indexed: false },
       { name: "name", type: "string", indexed: false },
       { name: "symbol", type: "string", indexed: false },
       { name: "metadataURI", type: "string", indexed: false },
@@ -231,10 +233,11 @@ export const rewardVaultAbi = [
   },
 ] as const;
 
+// CreatorRewardVaultV2: per-(creator, asset) balances; claim withdraws them.
 export const creatorRewardVaultAbi = [
   {
     type: "function",
-    name: "claimable",
+    name: "balanceOfCreator",
     stateMutability: "view",
     inputs: [
       { name: "creator", type: "address" },
@@ -251,7 +254,7 @@ export const creatorRewardVaultAbi = [
   },
   {
     type: "event",
-    name: "CreatorRewardClaimed",
+    name: "RewardClaimed",
     inputs: [
       { name: "creator", type: "address", indexed: true },
       { name: "asset", type: "address", indexed: true },

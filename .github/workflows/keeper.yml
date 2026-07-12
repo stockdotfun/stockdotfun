@@ -1,0 +1,34 @@
+name: stockdotfun-keeper
+
+# Converts pending holder/creator WETH into the paired stock token on a
+# schedule (StockRewardTreasury.convertPending). The keeper key is a
+# LOW-PRIVILEGE role: it can only trigger the bounded, quote-checked conversion
+# — it cannot move funds, pick tokens/recipients/routes, or change config.
+#
+# Required repo secrets: KEEPER_PRIVATE_KEY  (and optionally RHC_RPC_URL).
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 minutes (GitHub may delay under load)
+  workflow_dispatch: {} # allow manual runs
+
+concurrency:
+  group: keeper
+  cancel-in-progress: false
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Run conversion keeper
+        run: node scripts/keeper.mjs
+        env:
+          RHC_RPC_URL: ${{ secrets.RHC_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com' }}
+          KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}

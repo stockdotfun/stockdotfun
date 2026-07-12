@@ -63,11 +63,13 @@ contract DeployRobinhood is Script {
         // A broadcast run is only allowed with the acknowledgement flag. Without
         // it (or without --broadcast) this is a dry run: nothing is sent.
         string memory ack = vm.envOr("DEPLOY_CHECKLIST_ACK", string(""));
-        bool acknowledged = keccak256(bytes(ack))
-            == keccak256(bytes("I_HAVE_READ_DEPLOYMENT_CHECKLIST_AND_ACCEPT_MAINNET_RISK"));
+        bool acknowledged =
+            keccak256(bytes(ack)) == keccak256(bytes("I_HAVE_READ_DEPLOYMENT_CHECKLIST_AND_ACCEPT_MAINNET_RISK"));
         if (!acknowledged) {
             console.log("");
-            console.log(">>> DRY RUN - set DEPLOY_CHECKLIST_ACK=I_HAVE_READ_DEPLOYMENT_CHECKLIST_AND_ACCEPT_MAINNET_RISK");
+            console.log(
+                ">>> DRY RUN - set DEPLOY_CHECKLIST_ACK=I_HAVE_READ_DEPLOYMENT_CHECKLIST_AND_ACCEPT_MAINNET_RISK"
+            );
             console.log(">>> and pass --broadcast to deploy. Nothing was sent.");
             return;
         }
@@ -76,8 +78,7 @@ contract DeployRobinhood is Script {
         vm.startBroadcast(pk);
 
         StockAssetRegistry registry = new StockAssetRegistry(deployer);
-        (address[] memory tokens, string[] memory symbols, bool[] memory enabled) =
-            RobinhoodConfig.seedAssets();
+        (address[] memory tokens, string[] memory symbols, bool[] memory enabled) = RobinhoodConfig.seedAssets();
         for (uint256 i; i < tokens.length; ++i) {
             registry.addAsset(tokens[i], symbols[i], address(0), "");
             if (!enabled[i]) registry.setEnabled(tokens[i], false);

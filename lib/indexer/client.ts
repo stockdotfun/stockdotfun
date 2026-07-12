@@ -2,6 +2,7 @@ import { platformConfig, areContractsConfigured } from "@/lib/config";
 import { DEMO_TOKENS, DEMO_TRADES } from "@/lib/data/tokens";
 import type { LaunchedToken } from "@/types/token";
 import type { ExploreQuery, IndexerClient } from "@/lib/indexer/types";
+import { externalClient, indexerApiConfigured } from "@/lib/indexer/apiClient";
 
 function applyQuery(tokens: LaunchedToken[], q: ExploreQuery): LaunchedToken[] {
   let out = [...tokens];
@@ -105,6 +106,8 @@ const noneClient: IndexerClient = {
 
 /** Resolve the active data backend. Demo data never leaks into live mode. */
 export function getIndexerClient(): IndexerClient {
+  // Prefer the real external indexer (Ponder) when its URL is configured.
+  if (indexerApiConfigured) return externalClient;
   if (areContractsConfigured) return onchainClient;
   if (platformConfig.demoMode) return demoClient;
   return noneClient;
