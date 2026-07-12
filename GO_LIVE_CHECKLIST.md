@@ -13,8 +13,12 @@ when you're awake — none of this is on fire; the protocol is already live.
 ## 1. Indexer → Supabase + a host  (~10 min)
 Gives Explore / Portfolio / Creator real data.
 
-1. Supabase → **Project Settings → Database → Connection string → Direct** (port
-   **5432**, NOT 6543). Copy it (has your DB password).
+1. Supabase → **Connect**. Prefer the **Session pooler** string (IPv4, works on
+   any host) over Direct (IPv6-only unless you have the IPv4 add-on). Use **port
+   5432** (session) — NOT 6543 (transaction pooler breaks Ponder).
+   - **Percent-encode special characters in the password.** e.g. `@` → `%40`,
+     so `Vishal@526142` becomes `Vishal%40526142`. An un-encoded `@` silently
+     breaks the URL (Postgres reads the wrong host).
 2. Deploy the `indexer/` folder to **Render** or **Railway** (configs included):
    - **Render:** New → Blueprint → this repo → it reads `indexer/render.yaml`.
    - **Railway:** New → Deploy from repo → set root dir `indexer` → it reads `railway.json`.
