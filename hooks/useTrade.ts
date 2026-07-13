@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { parseEther } from "viem";
+import { parseEther, maxUint256 } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { wethAbi, erc20Abi, poolAbi } from "@/lib/contracts/abis";
 import { contractAddresses } from "@/lib/contracts/addresses";
@@ -146,12 +146,13 @@ export function useTrade(token: LaunchedToken) {
           args: [address, pool],
         })) as bigint;
         if (allowance < value) {
+          // Approve max so future buys skip this step (one fewer wallet prompt).
           setStep("approving");
           const apHash = await writeContractAsync({
             address: weth,
             abi: erc20Abi,
             functionName: "approve",
-            args: [pool, value],
+            args: [pool, maxUint256],
           });
           await publicClient.waitForTransactionReceipt({ hash: apHash });
         }
@@ -204,12 +205,13 @@ export function useTrade(token: LaunchedToken) {
           args: [address, pool],
         })) as bigint;
         if (allowance < amount) {
+          // Approve max so future sells skip this step (one fewer wallet prompt).
           setStep("approving");
           const apHash = await writeContractAsync({
             address: token.address,
             abi: erc20Abi,
             functionName: "approve",
-            args: [pool, amount],
+            args: [pool, maxUint256],
           });
           await publicClient.waitForTransactionReceipt({ hash: apHash });
         }

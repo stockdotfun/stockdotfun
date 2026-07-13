@@ -8,23 +8,26 @@ import { areContractsConfigured } from "@/lib/config";
 import { useClaim } from "@/hooks/useClaim";
 
 /**
- * Holder reward claim card. When contracts are configured and a token address
- * is provided, the Claim button claims the ETH (WETH) reward from the token's
- * RewardVault and unwraps it to native ETH. Otherwise it stays disabled.
+ * Holder reward claim card. Rewards are paid in the paired stock token (the
+ * treasury converts trade fees to the stock and deposits them into the token's
+ * RewardVault). The Claim button claims that stock asset. Stays disabled until
+ * contracts are configured and a token + stock address are known.
  */
 export default function RewardClaimCard({
   stockSymbol,
+  stockAddress,
   claimableLabel,
   sourceLabel,
   tokenAddress,
 }: {
   stockSymbol: string;
+  stockAddress?: `0x${string}` | null;
   claimableLabel: string;
   sourceLabel: string;
   tokenAddress?: `0x${string}`;
 }) {
   const claim = useClaim();
-  const canClaim = areContractsConfigured && !!tokenAddress;
+  const canClaim = areContractsConfigured && !!tokenAddress && !!stockAddress;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -46,20 +49,20 @@ export default function RewardClaimCard({
         {claimableLabel}
       </p>
       <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-        Claimable rewards (paid in ETH)
+        Claimable rewards (paid in {stockSymbol})
       </p>
       <Button
         disabled={!canClaim || claim.isBusy}
         loading={claim.isBusy}
-        onClick={() => tokenAddress && claim.claimHolderRewards(tokenAddress)}
+        onClick={() =>
+          tokenAddress && stockAddress && claim.claimHolderRewards(tokenAddress, stockAddress)
+        }
         className="mt-4 w-full"
       >
         {claim.isBusy
-          ? claim.step === "unwrapping"
-            ? "Unwrapping…"
-            : "Claiming…"
+          ? "Claiming…"
           : canClaim
-            ? "Claim ETH"
+            ? `Claim ${stockSymbol}`
             : "Claiming unavailable"}
       </Button>
 

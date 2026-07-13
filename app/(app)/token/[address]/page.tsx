@@ -19,6 +19,8 @@ import { useTokenDetail } from "@/hooks/useExploreTokens";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { formatUsd } from "@/lib/format/usd";
 import { curveProgressLabel, curveBarWidth } from "@/lib/format/curve";
+import { GRADUATION_MARKET_CAP_ETH } from "@/lib/curve/graduation";
+import { stockTokenAddress } from "@/lib/assets/robinhoodAssets";
 import { shortAddress } from "@/lib/web3/hooks";
 import { stockName } from "@/components/StockLogo";
 
@@ -221,6 +223,7 @@ export default function TokenPage({
 
           <RewardClaimCard
             stockSymbol={token.stockSymbol}
+            stockAddress={stockTokenAddress(token.stockSymbol)}
             claimableLabel="—"
             sourceLabel={`$${token.symbol} holder vault`}
             tokenAddress={token.isDemo ? undefined : token.address}
@@ -241,8 +244,20 @@ export default function TokenPage({
                   style={{ width: curveBarWidth(token.curveProgress) }}
                 />
               </div>
-              <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground">
-                Holders: {token.holderCount?.toLocaleString() ?? "—"}
+              <p className="mt-3 flex items-center justify-between text-[11.5px] leading-relaxed text-muted-foreground">
+                <span>
+                  Bonds at{" "}
+                  <span className="font-medium text-foreground">
+                    {ethUsd
+                      ? formatUsd(GRADUATION_MARKET_CAP_ETH * ethUsd)
+                      : `${GRADUATION_MARKET_CAP_ETH.toFixed(1)} ETH`}
+                  </span>{" "}
+                  market cap
+                </span>
+                <span>Holders: {token.holderCount?.toLocaleString() ?? "—"}</span>
+              </p>
+              <p className="mt-1.5 text-[10.5px] leading-relaxed text-muted-foreground/80">
+                At graduation, liquidity migrates to a locked Uniswap pool.
               </p>
             </CardBody>
           </Card>

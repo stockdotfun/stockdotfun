@@ -106,3 +106,10 @@ export const PAIRABLE_ASSETS: StockAsset[] = [...STOCK_ASSETS, ...ETF_ASSETS].ma
 
 /** Everything, including base assets. */
 export const ALL_ASSETS: StockAsset[] = [...BASE_ASSETS, ...PAIRABLE_ASSETS];
+
+/** Resolve a stock/asset symbol (e.g. "AAPL") to its verified token address. */
+export function stockTokenAddress(symbol?: string | null): `0x${string}` | null {
+  if (!symbol) return null;
+  const a = ALL_ASSETS.find((x) => x.symbol.toUpperCase() === symbol.toUpperCase());
+  return (a?.address as `0x${string}` | undefined) ?? null;
+}

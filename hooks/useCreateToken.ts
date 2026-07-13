@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { parseEther, parseEventLogs } from "viem";
+import { parseEther, parseEventLogs, maxUint256 } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { factoryAbi, wethAbi, erc20Abi, poolAbi } from "@/lib/contracts/abis";
 import { contractAddresses } from "@/lib/contracts/addresses";
@@ -173,7 +173,7 @@ export function useCreateToken() {
             address: weth,
             abi: erc20Abi,
             functionName: "approve",
-            args: [pool, value],
+            args: [pool, maxUint256],
           });
           await publicClient.waitForTransactionReceipt({ hash: apHash });
         }
