@@ -17,7 +17,13 @@ services:
     # Information Required".
     buildCommand: npm ci --no-audit --no-fund
     startCommand: npm run start
-    healthCheckPath: /ready
+    # Use /health (liveness — 200 as soon as the server binds), NOT /ready.
+    # Ponder's /ready returns 503 until historical indexing is complete, and the
+    # HTTP server only starts AFTER the DB schema lock is acquired. On a paid
+    # (zero-downtime) plan the old instance holds the lock, so /ready-gated
+    # deploys can never go healthy. /health lets the new instance report healthy
+    # immediately and finish indexing in the background.
+    healthCheckPath: /health
     autoDeploy: true
     envVars:
       - key: DATABASE_URL
@@ -25,7 +31,12 @@ services:
       - key: PONDER_RPC_URL_4663
         sync: false # optional; else defaults to public RHC RPC
       - key: DATABASE_SCHEMA
-        value: "stockdotfun_v2" # Ponder writes its tables into this Postgres schema
+        # Bumped v2 -> v3 to migrate onto the Starter plan: a fresh schema lets
+        # the new instance boot without colliding with the old instance's lock
+        # on 'stockdotfun_v2' (two Ponder apps can't share one schema). Ponder's
+        # raw-data sync store is shared, so re-indexing into v3 is fast.
+        # NOTE: must match the --schema in indexer/package.json's start script.
+        value: "stockdotfun_v3" # Ponder writes its tables into this Postgres schema
       - key: FACTORY_ADDRESS
         value: "0x470aca74d71269833de8cf65640dfb558393569e"
       - key: TREASURY_ADDRESS
