@@ -202,3 +202,181 @@ export async function fetchTokenOnchain(address: string): Promise<LaunchedToken 
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Live on-chain extras: spot price, recent trades, and minimal holders — so a
+// coin page is fully populated the moment it's created, before the indexer
+// has seen a single block of it.
+// ---------------------------------------------------------------------------
+
+import { parseAbiItem, type Log } from "viem";
+import type { TokenTrade, TokenHolder } from "@/types/token";
+
+const poolReadsAbi2 = [
+  { type: "function", name: "terminalPrice", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+] as const;
+
+const erc20ReadsAbi = [
+  { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ type: "address" }], outputs: [{ type: "uint256" }] },
+] as const;
+
+const buyEvent = parseAbiItem(
+  "event Buy(address indexed buyer, uint256 quoteIn, uint256 tokensOut, uint256 fee, uint256 refund)",
+);
+const sellEvent = parseAbiItem(
+  "event Sell(address indexed seller, uint256 tokensIn, uint256 quoteOut, uint256 fee)",
+);
+
+const poolCache = new Map<string, `0x${string}`>();
+
+async function poolFor(token: string): Promise<`0x${string}` | null> {
+  const hit = poolCache.get(token.toLowerCase());
+  if (hit) return hit;
+  const factory = contractAddresses.factory;
+  if (!factory) return null;
+  try {
+    const pool = (await client.readContract({
+      address: factory,
+      abi: factoryReadsAbi,
+      functionName: "poolOf",
+      args: [token as `0x${string}`],
+    })) as `0x${string}`;
+    if (!pool || pool === "0x0000000000000000000000000000000000000000") return null;
+    poolCache.set(token.toLowerCase(), pool);
+    return pool;
+  } catch {
+    return null;
+  }
+}
+
+export type PoolSpot = { priceEth: number; mcapEth: number };
+
+/** Live curve spot price / market cap straight from the pool (sub-second). */
+export async function fetchPoolSpot(token: string): Promise<PoolSpot | null> {
+  const pool = await poolFor(token);
+  if (!pool) return null;
+  try {
+    const terminal = (await client.readContract({
+      address: pool,
+      abi: poolReadsAbi2,
+      functionName: "terminalPrice",
+    })) as bigint;
+    const priceEth = Number(formatEther(terminal)); // ETH per token
+    return { priceEth, mcapEth: priceEth * 1_000_000_000 };
+  } catch {
+    return null;
+  }
+}
+
+// RHC produces ~10 blocks/sec; timestamps are approximated from block deltas
+// (indexer data replaces them with exact values as it catches up).
+const BLOCKS_PER_SEC = 10;
+const TRADE_WINDOW = 30_000n; // per getLogs call
+const TRADE_WINDOWS = 4; // total lookback ≈ 120k blocks ≈ 3.3h
+
+/**
+ * Recent Buy/Sell trades read directly from pool logs — instant, no indexer.
+ * Covers roughly the last ~3 hours (fresh launches); older history comes from
+ * the indexer, which supersedes these rows as it catches up.
+ */
+export async function fetchOnchainTrades(token: string): Promise<TokenTrade[]> {
+  const pool = await poolFor(token);
+  if (!pool) return [];
+  try {
+    const head = await client.getBlockNumber();
+    const nowSec = Math.floor(Date.now() / 1000);
+    const ranges = Array.from({ length: TRADE_WINDOWS }, (_, i) => {
+      const to = head - TRADE_WINDOW * BigInt(i);
+      const from = to - TRADE_WINDOW + 1n;
+      return { from: from > 0n ? from : 0n, to };
+    });
+    const results = await Promise.all(
+      ranges.map((r) =>
+        client
+          .getLogs({ address: pool, events: [buyEvent, sellEvent], fromBlock: r.from, toBlock: r.to })
+          .catch(() => [] as Log[]),
+      ),
+    );
+    const trades: TokenTrade[] = [];
+    for (const logs of results) {
+      for (const log of logs as (Log & { eventName: string; args: Record<string, unknown> })[]) {
+        const ageSec = Number(head - (log.blockNumber ?? head)) / BLOCKS_PER_SEC;
+        const timestamp = Math.max(0, Math.floor(nowSec - ageSec));
+        if (log.eventName === "Buy") {
+          trades.push({
+            txHash: log.transactionHash ?? "",
+            side: "buy",
+            account: log.args.buyer as `0x${string}`,
+            quoteAmountEth: Number(formatEther(log.args.quoteIn as bigint)),
+            tokenAmount: Number(formatEther(log.args.tokensOut as bigint)),
+            timestamp,
+          });
+        } else if (log.eventName === "Sell") {
+          trades.push({
+            txHash: log.transactionHash ?? "",
+            side: "sell",
+            account: log.args.seller as `0x${string}`,
+            quoteAmountEth: Number(formatEther(log.args.quoteOut as bigint)),
+            tokenAmount: Number(formatEther(log.args.tokensIn as bigint)),
+            timestamp,
+          });
+        }
+      }
+    }
+    trades.sort((a, b) => b.timestamp - a.timestamp);
+    const top = trades.slice(0, 100);
+
+    // Zap trades carry the zap contract as buyer/seller — attribute them to
+    // the transaction's real sender.
+    const zap = (contractAddresses.zap ?? "").toLowerCase();
+    if (zap) {
+      await Promise.all(
+        top
+          .filter((t) => t.account.toLowerCase() === zap && t.txHash)
+          .map(async (t) => {
+            try {
+              const tx = await client.getTransaction({ hash: t.txHash as `0x${string}` });
+              t.account = tx.from;
+            } catch {
+              // keep zap attribution on failure
+            }
+          }),
+      );
+    }
+    return top;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Minimal instant holders when the indexer has none yet: the bonding curve's
+ * reserve plus the creator's balance (covers a fresh launch with a dev buy).
+ */
+export async function fetchOnchainHolders(
+  token: string,
+  creator?: string,
+): Promise<TokenHolder[]> {
+  const pool = await poolFor(token);
+  if (!pool) return [];
+  try {
+    const addrs = [pool, ...(creator ? [creator as `0x${string}`] : [])];
+    const balances = await Promise.all(
+      addrs.map((a) =>
+        client
+          .readContract({ address: token as `0x${string}`, abi: erc20ReadsAbi, functionName: "balanceOf", args: [a] })
+          .catch(() => 0n),
+      ),
+    );
+    return addrs
+      .map((a, i) => ({
+        address: a,
+        balance: Number(formatEther(balances[i] as bigint)),
+        pct: (Number(formatEther(balances[i] as bigint)) / 1_000_000_000) * 100,
+      }))
+      .filter((h) => h.balance > 0)
+      .sort((a, b) => b.balance - a.balance);
+  } catch {
+    return [];
+  }
+}

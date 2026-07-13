@@ -136,6 +136,20 @@ function withOnchainFreshness(base: IndexerClient): IndexerClient {
         return null;
       }
     },
+    async getTrades(tokenAddress) {
+      // Indexer trades (exact timestamps) merged with trades read straight
+      // from pool logs (instant, ~3h lookback) — deduped by tx hash so rows
+      // upgrade in place as the indexer catches up.
+      const [indexed, live] = await Promise.all([
+        base.getTrades(tokenAddress),
+        import("@/lib/indexer/onchainFresh")
+          .then((m) => m.fetchOnchainTrades(tokenAddress))
+          .catch(() => []),
+      ]);
+      const seen = new Set(indexed.map((t) => t.txHash.toLowerCase()));
+      const fresh = live.filter((t) => !seen.has(t.txHash.toLowerCase()));
+      return [...fresh, ...indexed].sort((a, b) => b.timestamp - a.timestamp);
+    },
   };
 }
 

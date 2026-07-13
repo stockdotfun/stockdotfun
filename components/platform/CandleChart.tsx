@@ -22,10 +22,14 @@ export default function CandleChart({
   trades,
   symbol,
   usdPerEth,
+  spotMcapEth,
 }: {
   trades: TokenTrade[];
   symbol: string;
   usdPerEth?: number;
+  /** Live curve market cap (ETH). Lets the chart render INSTANTLY as a flat
+   *  line for a coin with no indexed trades yet. */
+  spotMcapEth?: number;
 }) {
   const [bucketSec, setBucketSec] = useState<number>(60);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -34,7 +38,23 @@ export default function CandleChart({
   const scale = usd ? usdPerEth! : 1;
   const money = (n: number) => (usd ? formatUsd(n) : `${compact(n)} ETH`);
 
-  const base = useMemo(() => tradesToCandles(trades, bucketSec), [trades, bucketSec]);
+  const base = useMemo(() => {
+    const built = tradesToCandles(trades, bucketSec);
+    if (built.candles.length === 0 && spotMcapEth && spotMcapEth > 0) {
+      // No trades yet — draw the live curve spot as a flat baseline so the
+      // chart is alive from second zero.
+      const now = Math.floor(Date.now() / 1000 / bucketSec) * bucketSec;
+      const flat = (t: number) => ({ time: t, open: spotMcapEth, high: spotMcapEth, low: spotMcapEth, close: spotMcapEth });
+      return {
+        candles: [flat(now - bucketSec), flat(now)],
+        volumes: [
+          { time: now - bucketSec, value: 0, up: true },
+          { time: now, value: 0, up: true },
+        ],
+      };
+    }
+    return built;
+  }, [trades, bucketSec, spotMcapEth]);
   const candles = useMemo(
     () =>
       base.candles.map((c) => ({

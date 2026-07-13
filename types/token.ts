@@ -61,6 +61,15 @@ export type LaunchedToken = {
 
 export type TradeSide = "buy" | "sell";
 
+/** A holder row for the token page (Hoodl-style holders tab). */
+export type TokenHolder = {
+  address: `0x${string}` | string;
+  /** Balance in whole tokens (18-decimals already applied). */
+  balance: number;
+  /** Percent of the fixed 1e9 supply. */
+  pct: number;
+};
+
 export type TokenTrade = {
   txHash: string;
   side: TradeSide;

@@ -16,6 +16,8 @@ import CandleChart from "@/components/platform/CandleChart";
 import CreatorRewardCard from "@/components/platform/CreatorRewardCard";
 import RewardClaimCard from "@/components/platform/RewardClaimCard";
 import { useTokenDetail } from "@/hooks/useExploreTokens";
+import { useOnchainSpot } from "@/hooks/useTokenLive";
+import TokenActivity from "@/components/platform/TokenActivity";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { formatUsd } from "@/lib/format/usd";
 import { curveProgressLabel, curveBarWidth } from "@/lib/format/curve";
@@ -52,6 +54,9 @@ export default function TokenPage({
   const { token, trades, isLoading } = useTokenDetail(address);
   const { address: viewer } = useAccount();
   const ethUsd = useEthPrice();
+  // Live curve spot — price + market cap are available the instant the coin
+  // exists, before any trade is indexed.
+  const spot = useOnchainSpot(token?.address);
 
   if (isLoading) {
     return (
@@ -143,13 +148,20 @@ export default function TokenPage({
         </p>
       )}
 
-      {/* Stats */}
+      {/* Stats — price + market cap come from the LIVE curve spot (instant,
+          no indexer), volume from trades. */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           label="Price"
-          value={token.priceUsd !== undefined ? `$${token.priceUsd}` : "—"}
+          value={
+            spot && ethUsd
+              ? `$${(spot.priceEth * ethUsd).toPrecision(2).replace(/e.*$/, "")}`
+              : spot
+                ? `${spot.priceEth.toPrecision(2)} ETH`
+                : "—"
+          }
         />
-        <StatCard label="Market cap" value={usdOrEth(marketCapEth)} />
+        <StatCard label="Market cap" value={usdOrEth(spot?.mcapEth ?? marketCapEth)} />
         <StatCard label="24h volume" value={usdOrEth(volume24hEth || undefined)} />
         <StatCard
           label="Holder reward pool"
@@ -165,57 +177,16 @@ export default function TokenPage({
           <Card>
             <CardHeader title="Market cap" mono />
             <CardBody>
-              <CandleChart trades={trades} symbol={token.symbol} usdPerEth={ethUsd} />
+              <CandleChart
+                trades={trades}
+                symbol={token.symbol}
+                usdPerEth={ethUsd}
+                spotMcapEth={spot?.mcapEth}
+              />
             </CardBody>
           </Card>
 
-          <Card>
-            <CardHeader title="Recent trades" mono />
-            <CardBody className="!p-0">
-              {trades.length === 0 ? (
-                <p className="px-5 py-8 text-center text-[12.5px] text-muted-foreground">
-                  No trades indexed yet.
-                </p>
-              ) : (
-                <table className="w-full text-left font-mono text-[12px]">
-                  <tbody>
-                    {trades.map((tr, i) => (
-                      <tr
-                        key={`${tr.txHash}-${i}`}
-                        className="border-b border-border-soft last:border-0"
-                      >
-                        <td className="px-5 py-3">
-                          <span
-                            className={
-                              tr.side === "buy" ? "text-primary" : "text-destructive"
-                            }
-                          >
-                            {tr.side.toUpperCase()}
-                          </span>
-                          {tr.isDemo && (
-                            <span className="ml-2 text-[9px] uppercase text-warning">
-                              demo
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3 text-foreground">
-                          {tr.quoteAmountUsd !== undefined
-                            ? `$${tr.quoteAmountUsd.toLocaleString()}`
-                            : `${fmtNum(tr.quoteAmountEth ?? 0, 6)} ETH`}
-                        </td>
-                        <td className="px-5 py-3 text-muted-foreground">
-                          {fmtNum(tr.tokenAmount, 2)} {token.symbol}
-                        </td>
-                        <td className="px-5 py-3 text-right text-muted-foreground">
-                          {shortAddress(tr.account, 3)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </CardBody>
-          </Card>
+          <TokenActivity token={token} trades={trades} ethUsd={ethUsd} />
         </div>
 
         <div className="space-y-5">

@@ -23,6 +23,15 @@ async function bumpMetrics(
     .onConflictDoUpdate(patch);
 }
 
+
+// The CurveZap executes buys/sells on behalf of users (1-tx UX), so the pool
+// event's buyer/seller is the zap contract. Attribute those trades to the
+// transaction's real sender instead.
+const ZAP = (process.env.ZAP_ADDRESS ?? "0xe19017cecb820a53e5f23c3b1a9b95c8f5d9d3fd").toLowerCase();
+function realTrader(eventAddr: `0x${string}`, txFrom: `0x${string}`): `0x${string}` {
+  return eventAddr.toLowerCase() === ZAP ? txFrom : eventAddr;
+}
+
 ponder.on("Factory:TokenCreated", async ({ event, context }) => {
   const { token, pool, creator, stock, holderVault, name, symbol, metadataURI } = event.args;
   await context.db.insert(tokens).values({
@@ -47,7 +56,7 @@ ponder.on("Pool:Buy", async ({ event, context }) => {
   await context.db.insert(trades).values({
     id: `${event.transaction.hash}-${event.log.logIndex}`,
     token: pool.token,
-    trader: event.args.buyer,
+    trader: realTrader(event.args.buyer, event.transaction.from),
     side: "buy",
     quoteAmount: event.args.quoteIn,
     tokenAmount: event.args.tokensOut,
@@ -71,7 +80,7 @@ ponder.on("Pool:Sell", async ({ event, context }) => {
   await context.db.insert(trades).values({
     id: `${event.transaction.hash}-${event.log.logIndex}`,
     token: pool.token,
-    trader: event.args.seller,
+    trader: realTrader(event.args.seller, event.transaction.from),
     side: "sell",
     quoteAmount: event.args.quoteOut,
     tokenAmount: event.args.tokensIn,

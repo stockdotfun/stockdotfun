@@ -96,6 +96,21 @@ app.get("/tokens/:address/trades", async (c) => {
   );
 });
 
+app.get("/tokens/:address/holders", async (c) => {
+  const rows = await db
+    .select()
+    .from(schema.holders)
+    .where(eq(schema.holders.token, c.req.param("address") as `0x${string}`))
+    .limit(500);
+  const nonZero = rows
+    .filter((r) => r.balance > 0n)
+    .sort((a, b) => (b.balance > a.balance ? 1 : b.balance < a.balance ? -1 : 0))
+    .slice(0, 50);
+  return c.json(
+    nonZero.map((r) => ({ holder: r.holder, balance: r.balance.toString() })),
+  );
+});
+
 app.get("/creators/:creator/tokens", async (c) => {
   const rows = await db
     .select()

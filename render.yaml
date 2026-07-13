@@ -43,3 +43,6 @@ services:
         value: "7364760"
       - key: GRADUATION_TARGET_WEI
         value: "4400000000000000000"
+      - key: ZAP_ADDRESS
+        # CurveZap — trades routed through it are attributed to tx.from
+        value: "0xe19017cecb820a53e5f23c3b1a9b95c8f5d9d3fd"
