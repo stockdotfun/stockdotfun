@@ -33,33 +33,34 @@ jobs:
     timeout-minutes: 5
     env:
       INDEXER_URL: ${{ vars.INDEXER_URL || 'https://stockdotfun-indexer.onrender.com' }}
-      RPC_URL: ${{ vars.RHC_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com' }}
       DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      LAG_THRESHOLD: ${{ vars.LAG_THRESHOLD || '6000' }}
     steps:
-      - name: Check indexer lag; re-sync only if drifted
+      # STUCK-detector, not lag-vs-head: Ponder's /status reports the FINALIZED
+      # block, and Robinhood Chain's finality trails the head by ~200k blocks, so
+      # "lag vs head" always looks huge and would redeploy every run. Instead we
+      # check whether the indexer's block ADVANCES over ~90s. A healthy indexer
+      # moves; a hung one doesn't → then (and only then) re-sync.
+      - name: Re-sync only if the indexer is stuck (not advancing)
         run: |
           set -u
-          head_hex=$(curl -s -m 30 -X POST "$RPC_URL" -H 'content-type: application/json' \
-            --data '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}' \
-            | python3 -c "import sys,json;print(json.load(sys.stdin)['result'])" 2>/dev/null || echo "")
-          idx=$(curl -s -m 30 "$INDEXER_URL/status" \
-            | python3 -c "import sys,json;print(json.load(sys.stdin)['robinhood']['block']['number'])" 2>/dev/null || echo "")
-          if [ -z "$head_hex" ] || [ -z "$idx" ]; then
-            echo "Could not read chain head ('$head_hex') or indexer block ('$idx'); skipping this run."
-            exit 0
-          fi
-          head=$((head_hex))
-          lag=$((head - idx))
-          echo "chain head=$head  indexer=$idx  lag=$lag  (threshold=$LAG_THRESHOLD)"
-          if [ "$lag" -le "$LAG_THRESHOLD" ]; then
-            echo "Indexer within threshold — healthy, no action."
+          getblk() {
+            curl -s -m 30 "$INDEXER_URL/status" \
+              | python3 -c "import sys,json;print(json.load(sys.stdin)['robinhood']['block']['number'])" 2>/dev/null || echo ""
+          }
+          b1=$(getblk)
+          if [ -z "$b1" ]; then echo "Indexer /status unreachable; skipping."; exit 0; fi
+          sleep 90
+          b2=$(getblk)
+          if [ -z "$b2" ]; then echo "Indexer /status unreachable on second read; skipping."; exit 0; fi
+          echo "indexer block: $b1 -> $b2 over 90s (advanced $((b2 - b1)))"
+          if [ "$b2" -gt "$b1" ]; then
+            echo "Indexer is advancing — healthy, no action."
             exit 0
           fi
           if [ -z "$DEPLOY_HOOK" ]; then
-            echo "::warning::Indexer drifted $lag blocks (> $LAG_THRESHOLD) but RENDER_DEPLOY_HOOK_URL is not set — cannot auto re-sync. Add the secret to enable self-healing."
+            echo "::warning::Indexer is stuck at block $b1 but RENDER_DEPLOY_HOOK_URL is not set — cannot auto re-sync."
             exit 0
           fi
-          echo "Indexer drifted $lag blocks (> $LAG_THRESHOLD). Triggering a Render re-sync..."
+          echo "Indexer stuck at block $b1 (no advance in 90s). Triggering a Render re-sync..."
           code=$(curl -s -m 30 -o /dev/null -w "%{http_code}" -X POST "$DEPLOY_HOOK")
           echo "Deploy hook responded HTTP $code."

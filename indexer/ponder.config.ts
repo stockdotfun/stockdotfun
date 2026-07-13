@@ -16,26 +16,27 @@ const START = Number(process.env.FACTORY_START_BLOCK ?? 0);
 
 const tokenCreated = getAbiItem({ abi: FactoryAbi, name: "TokenCreated" });
 
-// Robinhood Chain produces ~10 blocks/sec. Ponder's realtime sync fetches
-// blocks ~one round-trip each, so on the public RPC it tops out ~5-6 blocks/sec
-// and slowly drifts behind the head (batched historical backfill is fast — a
-// fresh deploy re-syncs to the head in minutes, then drifts again). The real
-// fix is a low-latency dedicated RPC: set PONDER_RPC_URL_4663 to one URL (fanned
-// out below) or a comma-separated list of distinct endpoints. Parallel
-// connections to the SAME public endpoint don't lift the per-block latency
-// ceiling, so this stays a stopgap until a dedicated RPC is configured.
-const RAW_RPC =
-  process.env.PONDER_RPC_URL_4663 ?? "https://rpc.mainnet.chain.robinhood.com";
-const RPC_LIST = RAW_RPC.includes(",")
-  ? RAW_RPC.split(",").map((s) => s.trim()).filter(Boolean)
-  : Array.from({ length: 6 }, () => RAW_RPC);
+// RPC strategy for Robinhood Chain (~10 blocks/sec):
+// - A dedicated low-latency RPC (PONDER_RPC_URL_4663, e.g. Alchemy) is used
+//   DIRECTLY as a single connection (or a comma-separated list as-is). It's
+//   fast on its own, and fanning one endpoint out to many connections just
+//   overruns provider rate limits and can hang the sync.
+// - Only the slow public fallback is fanned out into parallel connections to
+//   squeeze a bit more throughput.
+// maxRequestsPerSecond is kept conservative for the dedicated RPC so we stay
+// within a typical free-tier compute-unit budget.
+const PUBLIC_RPC = "https://rpc.mainnet.chain.robinhood.com";
+const DEDICATED = process.env.PONDER_RPC_URL_4663;
+const RPC_LIST = DEDICATED
+  ? DEDICATED.split(",").map((s) => s.trim()).filter(Boolean)
+  : Array.from({ length: 6 }, () => PUBLIC_RPC);
 
 export default createConfig({
   chains: {
     robinhood: {
       id: 4663,
-      rpc: RPC_LIST,
-      maxRequestsPerSecond: 60,
+      rpc: RPC_LIST.length === 1 ? RPC_LIST[0] : RPC_LIST,
+      maxRequestsPerSecond: DEDICATED ? 25 : 60,
     },
   },
   contracts: {
