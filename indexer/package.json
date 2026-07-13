@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "ponder dev",
-    "start": "ponder start --schema stockdotfun_v3",
+    "start": "sh start.sh",
     "codegen": "ponder codegen",
     "typecheck": "tsc --noEmit"
   },

@@ -30,13 +30,9 @@ services:
         sync: false # set in dashboard: Supabase connection string
       - key: PONDER_RPC_URL_4663
         sync: false # optional; else defaults to public RHC RPC
-      - key: DATABASE_SCHEMA
-        # Bumped v2 -> v3 to migrate onto the Starter plan: a fresh schema lets
-        # the new instance boot without colliding with the old instance's lock
-        # on 'stockdotfun_v2' (two Ponder apps can't share one schema). Ponder's
-        # raw-data sync store is shared, so re-indexing into v3 is fast.
-        # NOTE: must match the --schema in indexer/package.json's start script.
-        value: "stockdotfun_v3" # Ponder writes its tables into this Postgres schema
+      # NOTE: the Postgres schema is chosen per-instance by indexer/start.sh
+      # (sdf_<RENDER_INSTANCE_ID>) so zero-downtime deploys never collide on
+      # Ponder's schema lock. There is intentionally no DATABASE_SCHEMA here.
       - key: FACTORY_ADDRESS
         value: "0x470aca74d71269833de8cf65640dfb558393569e"
       - key: TREASURY_ADDRESS
