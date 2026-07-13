@@ -25,8 +25,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci --no-audit --no-fund
+      # The keeper only needs viem — install it standalone so the cron job is
+      # immune to the app's package-lock drift (a broken repo lock must never
+      # stop reward conversions from running). Reset to a minimal package so the
+      # app's stale lock/manifest can't interfere.
+      - run: |
+          rm -f package-lock.json package.json
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund viem@^2
       - name: Run conversion keeper
         run: node scripts/keeper.mjs
         env:
