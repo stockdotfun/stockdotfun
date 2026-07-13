@@ -72,6 +72,20 @@ export default function TokenPage({
   const isCreator =
     viewer && viewer.toLowerCase() === token.creator.toLowerCase();
 
+  // Live market-cap / volume in ETH, derived from indexed trades (no USD oracle).
+  // Market cap = latest price-per-token × 1e9 fixed supply.
+  const priced = trades.filter((t) => (t.quoteAmountEth ?? 0) > 0 && t.tokenAmount > 0);
+  const latest = priced.length
+    ? priced.reduce((a, b) => (b.timestamp > a.timestamp ? b : a))
+    : undefined;
+  const marketCapEth = latest ? (latest.quoteAmountEth! / latest.tokenAmount) * 1e9 : undefined;
+  const cutoff = Date.now() / 1000 - 86_400;
+  const volume24hEth = priced
+    .filter((t) => t.timestamp >= cutoff)
+    .reduce((s, t) => s + (t.quoteAmountEth ?? 0), 0);
+  const ethLabel = (n?: number, dp = 4) =>
+    n === undefined ? "—" : `${n.toLocaleString("en-US", { maximumFractionDigits: dp })} ETH`;
+
 
   return (
     <div>
@@ -124,8 +138,8 @@ export default function TokenPage({
           label="Price"
           value={token.priceUsd !== undefined ? `$${token.priceUsd}` : "—"}
         />
-        <StatCard label="Market cap" value={fmt(token.marketCapUsd)} />
-        <StatCard label="24h volume" value={fmt(token.volume24hUsd)} />
+        <StatCard label="Market cap" value={ethLabel(marketCapEth)} />
+        <StatCard label="24h volume" value={ethLabel(volume24hEth || undefined)} />
         <StatCard
           label="Holder reward pool"
           value={fmt(token.holderRewardPoolUsd)}
@@ -140,7 +154,7 @@ export default function TokenPage({
           <Card>
             <CardHeader title="Market cap" mono />
             <CardBody>
-              <CandleChart trades={trades} />
+              <CandleChart trades={trades} symbol={token.symbol} />
             </CardBody>
           </Card>
 
