@@ -16,12 +16,14 @@ const START = Number(process.env.FACTORY_START_BLOCK ?? 0);
 
 const tokenCreated = getAbiItem({ abi: FactoryAbi, name: "TokenCreated" });
 
-// Robinhood Chain produces ~10 blocks/sec. A single RPC connection is
-// round-trip-latency-bound (~5 blocks/sec) and falls behind. Ponder accepts an
-// array of endpoints and spreads requests across them, so we open several
-// parallel connections to keep realtime sync pinned to the head. Set
-// PONDER_RPC_URL_4663 to one URL (fanned out below) or a comma-separated list
-// of distinct endpoints for even more headroom.
+// Robinhood Chain produces ~10 blocks/sec. Ponder's realtime sync fetches
+// blocks ~one round-trip each, so on the public RPC it tops out ~5-6 blocks/sec
+// and slowly drifts behind the head (batched historical backfill is fast — a
+// fresh deploy re-syncs to the head in minutes, then drifts again). The real
+// fix is a low-latency dedicated RPC: set PONDER_RPC_URL_4663 to one URL (fanned
+// out below) or a comma-separated list of distinct endpoints. Parallel
+// connections to the SAME public endpoint don't lift the per-block latency
+// ceiling, so this stays a stopgap until a dedicated RPC is configured.
 const RAW_RPC =
   process.env.PONDER_RPC_URL_4663 ?? "https://rpc.mainnet.chain.robinhood.com";
 const RPC_LIST = RAW_RPC.includes(",")
