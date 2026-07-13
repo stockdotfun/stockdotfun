@@ -12,7 +12,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import AddressCopy from "@/components/platform/AddressCopy";
 import TradingPanel from "@/components/platform/TradingPanel";
-import TokenChart from "@/components/platform/TokenChart";
+import CandleChart from "@/components/platform/CandleChart";
 import CreatorRewardCard from "@/components/platform/CreatorRewardCard";
 import RewardClaimCard from "@/components/platform/RewardClaimCard";
 import { useTokenDetail } from "@/hooks/useExploreTokens";
@@ -72,11 +72,6 @@ export default function TokenPage({
   const isCreator =
     viewer && viewer.toLowerCase() === token.creator.toLowerCase();
 
-  // Price series from indexed trades: ETH paid/received per token, oldest→newest.
-  const chartPoints = [...trades]
-    .filter((t) => (t.quoteAmountEth ?? 0) > 0 && t.tokenAmount > 0)
-    .sort((a, b) => a.timestamp - b.timestamp)
-    .map((t) => ({ time: t.timestamp, value: t.quoteAmountEth! / t.tokenAmount }));
 
   return (
     <div>
@@ -143,9 +138,9 @@ export default function TokenPage({
       <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-5">
           <Card>
-            <CardHeader title="Price chart" mono />
+            <CardHeader title="Market cap" mono />
             <CardBody>
-              <TokenChart points={chartPoints} />
+              <CandleChart trades={trades} />
             </CardBody>
           </Card>
 
