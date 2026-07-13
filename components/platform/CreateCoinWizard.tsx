@@ -42,6 +42,12 @@ export default function CreateCoinWizard() {
   // token (converted from fees by the treasury); there is no preference choice.
   const pref = "stock" as const;
 
+  // Optional initial "dev buy" — the creator buys some of their own token from
+  // the bonding curve right after launch (a real second tx from their wallet).
+  const [initialBuyEth, setInitialBuyEth] = useState("");
+  const devBuy = parseFloat(initialBuyEth);
+  const devBuyValid = initialBuyEth.trim() === "" || (!Number.isNaN(devBuy) && devBuy > 0);
+
   // Metadata pinning (Part 8) happens at launch, before the on-chain tx.
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -99,12 +105,13 @@ export default function CreateCoinWizard() {
         twitter: twitter.trim() || undefined,
         telegram: telegram.trim() || undefined,
       });
-      // 2) Launch with the permanent metadata URI.
+      // 2) Launch with the permanent metadata URI, plus an optional dev buy.
       create.createToken({
         name: name.trim(),
         symbol: cleanTicker,
         metadataURI: metadataUri,
         stockAssetAddress: selectedAsset.address,
+        initialBuyEth: initialBuyEth.trim() || undefined,
       });
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Metadata upload failed.");
@@ -352,6 +359,37 @@ export default function CreateCoinWizard() {
                 <span className="text-right text-foreground">{launch.network}</span>
               </div>
 
+              {/* Optional initial dev buy */}
+              <div className="rounded-2xl border border-border-soft bg-muted/40 p-4">
+                <label className="flex items-center justify-between">
+                  <span className="text-[13px] font-medium text-foreground">
+                    Buy ${cleanTicker || "TOKEN"} at launch
+                    <span className="ml-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                      optional
+                    </span>
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    ETH
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  placeholder="0.00"
+                  value={initialBuyEth}
+                  onChange={(e) => setInitialBuyEth(e.target.value)}
+                  className={`mt-2 w-full rounded-xl border bg-background px-3.5 py-2.5 font-mono text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary ${
+                    devBuyValid ? "border-input" : "border-destructive"
+                  }`}
+                />
+                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                  Seed your own coin from the bonding curve in the same flow. This
+                  is a second transaction from your wallet right after creation
+                  (wrap ETH → buy). Leave blank to skip.
+                </p>
+              </div>
+
               {launchBlockers.length > 0 && (
                 <div className="space-y-2 rounded-2xl border border-warning/30 bg-warning/5 p-4">
                   {launchBlockers.map((b) => (
@@ -414,16 +452,20 @@ export default function CreateCoinWizard() {
           <Button
             onClick={onLaunch}
             disabled={
-              launchBlockers.length > 0 || uploading || create.isSubmitting || create.isConfirming
+              launchBlockers.length > 0 || !devBuyValid || uploading || create.isBusy
             }
-            loading={uploading || create.isSubmitting || create.isConfirming}
+            loading={uploading || create.isBusy}
             size="lg"
           >
             {uploading
               ? "Pinning metadata…"
-              : launch.contractsConfigured
-                ? "Create token"
-                : "Launch unavailable"}
+              : create.isBusy
+                ? create.stepLabel
+                : !launch.contractsConfigured
+                  ? "Launch unavailable"
+                  : initialBuyEth.trim()
+                    ? "Create + buy"
+                    : "Create token"}
           </Button>
         )}
       </div>
