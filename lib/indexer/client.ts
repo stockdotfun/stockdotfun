@@ -104,10 +104,46 @@ const noneClient: IndexerClient = {
   },
 };
 
+/**
+ * Freshness wrapper: merge direct on-chain reads over the indexer so a
+ * just-launched token is visible INSTANTLY (the factory is the source of
+ * truth; the indexer backfills stats minutes later). Never throws — on any
+ * on-chain read failure the indexer data passes through untouched.
+ */
+function withOnchainFreshness(base: IndexerClient): IndexerClient {
+  return {
+    ...base,
+    async getTokens(query) {
+      const indexed = await base.getTokens(query);
+      try {
+        const { fetchFreshTokens } = await import("@/lib/indexer/onchainFresh");
+        const known = new Set(indexed.map((t) => t.address.toLowerCase()));
+        const fresh = (await fetchFreshTokens(indexed.length)).filter(
+          (t) => !known.has(t.address.toLowerCase()),
+        );
+        return fresh.length > 0 ? [...fresh, ...indexed] : indexed;
+      } catch {
+        return indexed;
+      }
+    },
+    async getToken(address) {
+      const t = await base.getToken(address);
+      if (t) return t;
+      try {
+        const { fetchTokenOnchain } = await import("@/lib/indexer/onchainFresh");
+        return await fetchTokenOnchain(address);
+      } catch {
+        return null;
+      }
+    },
+  };
+}
+
 /** Resolve the active data backend. Demo data never leaks into live mode. */
 export function getIndexerClient(): IndexerClient {
-  // Prefer the real external indexer (Ponder) when its URL is configured.
-  if (indexerApiConfigured) return externalClient;
+  // Prefer the real external indexer (Ponder) when its URL is configured,
+  // overlaid with instant on-chain freshness for brand-new launches.
+  if (indexerApiConfigured) return withOnchainFreshness(externalClient);
   if (areContractsConfigured) return onchainClient;
   if (platformConfig.demoMode) return demoClient;
   return noneClient;

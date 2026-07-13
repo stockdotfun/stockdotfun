@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ImagePlus, X, AlertTriangle, Check } from "lucide-react";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -56,6 +57,17 @@ export default function CreateCoinWizard() {
   const launch = useLaunchConfig();
   const wallet = useWalletNetwork();
   const create = useCreateToken();
+  const router = useRouter();
+
+  // Pump.fun-style: as soon as the launch confirms, take the creator straight
+  // to their coin's page (it resolves via direct on-chain reads immediately,
+  // before the indexer has it).
+  useEffect(() => {
+    if (create.isSuccess && create.createdToken) {
+      const t = setTimeout(() => router.push(`/token/${create.createdToken}`), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [create.isSuccess, create.createdToken, router]);
 
   const selectedAsset = assets.find((a) => a.symbol === stockSymbol) ?? null;
   const cleanTicker = ticker.replace(/^\$/, "").toUpperCase().slice(0, 10);

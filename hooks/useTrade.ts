@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { parseEther, maxUint256 } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
-import { wethAbi, erc20Abi, poolAbi } from "@/lib/contracts/abis";
+import { wethAbi, erc20Abi, poolAbi, curveZapAbi } from "@/lib/contracts/abis";
 import { contractAddresses } from "@/lib/contracts/addresses";
 import { areContractsConfigured, explorerTxUrl } from "@/lib/config";
 import type { LaunchedToken, TradeSide } from "@/types/token";
@@ -128,6 +128,24 @@ export function useTrade(token: LaunchedToken) {
         })) as [bigint, bigint];
         const minTokensOut = minusSlippage(tokensOut, slippagePct);
 
+        // Zap path: ONE transaction — wraps, approves, and buys atomically.
+        const zap = contractAddresses.zap;
+        if (zap) {
+          setStep("buying");
+          const zapHash = await writeContractAsync({
+            address: zap,
+            abi: curveZapAbi,
+            functionName: "buyWithETH",
+            args: [pool, minTokensOut],
+            value,
+          });
+          await publicClient.waitForTransactionReceipt({ hash: zapHash });
+          setTxHash(zapHash);
+          setStep("done");
+          return;
+        }
+
+        // Legacy path (no zap deployed): wrap → approve → buy.
         // 1. wrap ETH → WETH
         setStep("wrapping");
         const wrapHash = await writeContractAsync({
@@ -197,6 +215,40 @@ export function useTrade(token: LaunchedToken) {
         })) as [bigint, bigint];
         const minQuoteOut = minusSlippage(quoteOut, slippagePct);
 
+        // Zap path: one-time token approval to the zap, then a single
+        // sellForETH transaction (sell + unwrap in one).
+        const zap = contractAddresses.zap;
+        if (zap) {
+          const zapAllowance = (await publicClient.readContract({
+            address: token.address,
+            abi: erc20Abi,
+            functionName: "allowance",
+            args: [address, zap],
+          })) as bigint;
+          if (zapAllowance < amount) {
+            setStep("approving");
+            const apHash = await writeContractAsync({
+              address: token.address,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [zap, maxUint256],
+            });
+            await publicClient.waitForTransactionReceipt({ hash: apHash });
+          }
+          setStep("selling");
+          const zapHash = await writeContractAsync({
+            address: zap,
+            abi: curveZapAbi,
+            functionName: "sellForETH",
+            args: [pool, amount, minQuoteOut],
+          });
+          await publicClient.waitForTransactionReceipt({ hash: zapHash });
+          setTxHash(zapHash);
+          setStep("done");
+          return;
+        }
+
+        // Legacy path (no zap deployed): approve → sell → unwrap.
         // 1. approve meme → pool (only if needed)
         const allowance = (await publicClient.readContract({
           address: token.address,

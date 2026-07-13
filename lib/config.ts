@@ -64,6 +64,9 @@ export const platformConfig = {
       process.env.NEXT_PUBLIC_CREATOR_REWARD_VAULT_ADDRESS,
     ),
     treasury: envAddress(process.env.NEXT_PUBLIC_PROTOCOL_TREASURY),
+    // CurveZap: 1-transaction ETH buys/sells (wrap+approve+trade atomically).
+    // When unset, trading falls back to the multi-step wrap/approve flow.
+    zap: envAddress(process.env.NEXT_PUBLIC_ZAP_ADDRESS),
   },
 
   /**

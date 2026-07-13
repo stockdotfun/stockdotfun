@@ -306,3 +306,29 @@ export const erc20Abi = [
     outputs: [{ name: "", type: "string" }],
   },
 ] as const;
+
+// CurveZap: 1-transaction ETH buys/sells against bonding-curve pools
+// (wraps/approves/trades atomically; only factory-registered pools).
+export const curveZapAbi = [
+  {
+    type: "function",
+    name: "buyWithETH",
+    stateMutability: "payable",
+    inputs: [
+      { name: "pool", type: "address" },
+      { name: "minTokensOut", type: "uint256" },
+    ],
+    outputs: [{ name: "tokensOut", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "sellForETH",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "pool", type: "address" },
+      { name: "tokensIn", type: "uint256" },
+      { name: "minQuoteOut", type: "uint256" },
+    ],
+    outputs: [{ name: "quoteOut", type: "uint256" }],
+  },
+] as const;

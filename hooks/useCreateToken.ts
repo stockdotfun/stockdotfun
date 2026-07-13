@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { parseEther, parseEventLogs, maxUint256 } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
-import { factoryAbi, wethAbi, erc20Abi, poolAbi } from "@/lib/contracts/abis";
+import { factoryAbi, wethAbi, erc20Abi, poolAbi, curveZapAbi } from "@/lib/contracts/abis";
 import { contractAddresses } from "@/lib/contracts/addresses";
 import { areContractsConfigured, explorerTxUrl } from "@/lib/config";
 
@@ -152,6 +152,24 @@ export function useCreateToken() {
         })) as [bigint, bigint];
         const minTokensOut = minusSlippage(tokensOut, params.slippagePct ?? "3");
 
+        const zap = contractAddresses.zap;
+        if (zap) {
+          // ONE transaction: the zap wraps, approves, and buys atomically —
+          // create + dev buy = 2 wallet confirmations total.
+          setStep("buying");
+          const zapHash = await writeContractAsync({
+            address: zap,
+            abi: curveZapAbi,
+            functionName: "buyWithETH",
+            args: [pool, minTokensOut],
+            value,
+          });
+          await publicClient.waitForTransactionReceipt({ hash: zapHash });
+          setStep("done");
+          return;
+        }
+
+        // Legacy path (no zap deployed): wrap → approve → buy.
         setStep("wrapping");
         const wrapHash = await writeContractAsync({
           address: weth,
