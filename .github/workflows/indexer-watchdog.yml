@@ -1,0 +1,65 @@
+name: stockdotfun-indexer-watchdog
+
+# Self-healing watchdog for the Render-hosted Ponder indexer.
+#
+# Robinhood Chain produces ~10 blocks/sec, but Ponder's realtime sync tops out
+# ~6 blocks/sec on the PUBLIC RPC, so the indexer slowly drifts behind the head
+# and newly-created tokens / trades surface late. A fresh deploy re-syncs via
+# fast batched backfill and snaps back to the head. This job checks the lag on a
+# schedule and, only if it has drifted past the threshold, triggers a Render
+# re-sync via a Deploy Hook. When the indexer is healthy it does nothing.
+#
+# PERMANENT FIX (makes this watchdog effectively never fire): point the indexer
+# at a dedicated low-latency RPC by setting PONDER_RPC_URL_4663 in the Render
+# dashboard (Alchemy / QuickNode both support Robinhood Chain mainnet, HTTP+WSS).
+#
+# ACTIVATION: add repo secret RENDER_DEPLOY_HOOK_URL
+#   (Render -> stockdotfun-indexer -> Settings -> Deploy Hook -> copy URL).
+# Optional repo variables: LAG_THRESHOLD (default 6000 blocks), INDEXER_URL,
+# RHC_RPC_URL. Without the secret, the job only reports lag and takes no action.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 min (GitHub may delay under load)
+  workflow_dispatch: {} # allow manual runs
+
+concurrency:
+  group: indexer-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      INDEXER_URL: ${{ vars.INDEXER_URL || 'https://stockdotfun-indexer.onrender.com' }}
+      RPC_URL: ${{ vars.RHC_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com' }}
+      DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      LAG_THRESHOLD: ${{ vars.LAG_THRESHOLD || '6000' }}
+    steps:
+      - name: Check indexer lag; re-sync only if drifted
+        run: |
+          set -u
+          head_hex=$(curl -s -m 30 -X POST "$RPC_URL" -H 'content-type: application/json' \
+            --data '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}' \
+            | python3 -c "import sys,json;print(json.load(sys.stdin)['result'])" 2>/dev/null || echo "")
+          idx=$(curl -s -m 30 "$INDEXER_URL/status" \
+            | python3 -c "import sys,json;print(json.load(sys.stdin)['robinhood']['block']['number'])" 2>/dev/null || echo "")
+          if [ -z "$head_hex" ] || [ -z "$idx" ]; then
+            echo "Could not read chain head ('$head_hex') or indexer block ('$idx'); skipping this run."
+            exit 0
+          fi
+          head=$((head_hex))
+          lag=$((head - idx))
+          echo "chain head=$head  indexer=$idx  lag=$lag  (threshold=$LAG_THRESHOLD)"
+          if [ "$lag" -le "$LAG_THRESHOLD" ]; then
+            echo "Indexer within threshold — healthy, no action."
+            exit 0
+          fi
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::warning::Indexer drifted $lag blocks (> $LAG_THRESHOLD) but RENDER_DEPLOY_HOOK_URL is not set — cannot auto re-sync. Add the secret to enable self-healing."
+            exit 0
+          fi
+          echo "Indexer drifted $lag blocks (> $LAG_THRESHOLD). Triggering a Render re-sync..."
+          code=$(curl -s -m 30 -o /dev/null -w "%{http_code}" -X POST "$DEPLOY_HOOK")
+          echo "Deploy hook responded HTTP $code."
