@@ -23,7 +23,11 @@ async function get<T>(path: string): Promise<T | null> {
   }
 }
 
-type ApiToken = Partial<LaunchedToken> & { address: string; pool: string };
+type ApiToken = Partial<LaunchedToken> & {
+  address: string;
+  pool: string;
+  holderRewardsEth?: number;
+};
 
 function mapToken(t: ApiToken): LaunchedToken {
   return {
@@ -43,6 +47,9 @@ function mapToken(t: ApiToken): LaunchedToken {
     priceUsd: t.priceUsd,
     marketCapUsd: t.marketCapUsd,
     volume24hUsd: t.volume24hUsd,
+    marketCapEth: t.marketCapEth,
+    volume24hEth: t.volume24hEth,
+    holderRewardPoolEth: t.holderRewardsEth,
     holderCount: t.holderCount,
     holderRewardPoolUsd: t.holderRewardPoolUsd,
     creatorRewardsUsd: t.creatorRewardsUsd,

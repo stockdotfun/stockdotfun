@@ -15,7 +15,7 @@
 import { createPublicClient, http, formatEther } from "viem";
 import { robinhoodChain } from "@/lib/chains/robinhood";
 import { contractAddresses } from "@/lib/contracts/addresses";
-import { GRADUATION_TARGET_ETH } from "@/lib/curve/graduation";
+import { GRADUATION_TARGET_ETH, curveMcapEth } from "@/lib/curve/graduation";
 import { ALL_ASSETS } from "@/lib/assets/robinhoodAssets";
 import type { LaunchedToken } from "@/types/token";
 
@@ -118,6 +118,7 @@ async function readTokenAt(index: number): Promise<LaunchedToken | null> {
       createdAt: Math.floor(Date.now() / 1000),
       status: "curve",
       curveProgress: progress,
+      marketCapEth: curveMcapEth(Number(formatEther(realQuote as bigint))),
     };
     cache.set(token.toLowerCase(), built);
     return built;
@@ -195,6 +196,7 @@ export async function fetchTokenOnchain(address: string): Promise<LaunchedToken 
         100,
         (Number(formatEther(realQuote as bigint)) / GRADUATION_TARGET_ETH) * 100,
       ),
+      marketCapEth: curveMcapEth(Number(formatEther(realQuote as bigint))),
     };
     cache.set(address.toLowerCase(), built);
     return built;

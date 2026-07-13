@@ -23,3 +23,14 @@ export const GRADUATION_MARKET_CAP_ETH = (() => {
     (VIRTUAL_QUOTE_ETH + GRADUATION_TARGET_ETH) / (VIRTUAL_TOKEN + tokenReserveAtGrad);
   return priceAtGrad * CURVE_SUPPLY;
 })();
+
+/**
+ * Live market cap (ETH) for a curve pool given its realQuote (ETH). Constant
+ * product: price = (vq + rq)² / K, mcap = price × supply. Matches the pool's
+ * on-chain terminalPrice exactly (verified: rq=0 → 2.796 ETH).
+ */
+export function curveMcapEth(realQuoteEth: number): number {
+  const k = VIRTUAL_QUOTE_ETH * (VIRTUAL_TOKEN + CURVE_SUPPLY);
+  const price = (VIRTUAL_QUOTE_ETH + realQuoteEth) ** 2 / k;
+  return price * CURVE_SUPPLY;
+}

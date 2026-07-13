@@ -19,7 +19,38 @@ const STOCK_SYMBOLS: Record<string, string> = {
   "0x117cc2133c37b721f49de2a7a74833232b3b4c0c": "SPY",
 };
 
-function toDto(row: any) {
+// Curve constants (StockDotFunFactoryV2 uses fixed params for every launch):
+// constant-product with virtual reserves — price = (vq + realQuote)^2 / K.
+const VQ = 3; // virtualQuote (ETH)
+const VT = 73_000_000; // virtualToken (tokens)
+const SUPPLY = 1_000_000_000; // curve supply (tokens)
+const K = VQ * (VT + SUPPLY);
+const HOLDER_SHARE = 0.4; // 40% of the 1% trade fee routes to holders
+
+/** Live market cap in ETH from realQuote (matches pool.terminalPrice). */
+function mcapEth(realQuote: bigint): number {
+  const rq = Number(realQuote) / 1e18;
+  return ((VQ + rq) ** 2 / K) * SUPPLY;
+}
+
+type TokenStats = { volume24hEth: number; holderRewardsEth: number };
+
+/** One pass over trades → per-token 24h volume + lifetime holder-share fees. */
+async function tradeStats(): Promise<Map<string, TokenStats>> {
+  const cutoff = Math.floor(Date.now() / 1000) - 86_400;
+  const rows = await db.select().from(schema.trades);
+  const map = new Map<string, TokenStats>();
+  for (const r of rows) {
+    const key = (r.token as string).toLowerCase();
+    const s = map.get(key) ?? { volume24hEth: 0, holderRewardsEth: 0 };
+    if (r.timestamp >= cutoff) s.volume24hEth += Number(r.quoteAmount) / 1e18;
+    s.holderRewardsEth += (Number(r.fee) / 1e18) * HOLDER_SHARE;
+    map.set(key, s);
+  }
+  return map;
+}
+
+function toDto(row: any, stats?: TokenStats) {
   // Fractional percent (4-decimal resolution) so small-but-real progress isn't
   // floored to 0 by integer division — e.g. 0.0008 ETH of a 4.4 ETH target = 0.02%.
   const progress =
@@ -45,19 +76,21 @@ function toDto(row: any) {
     // ipfs:// URI of the metadata JSON (holds name/description/image); the
     // client fetches it to render the launch image.
     metadataURI: row.metadataURI,
-    // USD stats intentionally omitted: no price oracle wired yet.
+    // ETH-denominated stats (no USD oracle here — the client converts):
+    marketCapEth: mcapEth(row.realQuote),
+    volume24hEth: stats?.volume24hEth ?? 0,
+    holderRewardsEth: stats?.holderRewardsEth ?? 0,
   };
 }
 
 // Ponder serves /health and /ready internally; we expose app data below.
 app.get("/tokens", async (c) => {
   const stock = c.req.query("stock");
-  const rows = await db
-    .select()
-    .from(schema.tokens)
-    .orderBy(desc(schema.tokens.createdAt))
-    .limit(200);
-  let out = rows.map(toDto);
+  const [rows, stats] = await Promise.all([
+    db.select().from(schema.tokens).orderBy(desc(schema.tokens.createdAt)).limit(200),
+    tradeStats(),
+  ]);
+  let out = rows.map((r) => toDto(r, stats.get((r.id as string).toLowerCase())));
   if (stock) out = out.filter((t) => t.stockSymbol === stock);
   const search = c.req.query("search")?.toLowerCase();
   if (search) out = out.filter((t) => t.name.toLowerCase().includes(search) || t.symbol.toLowerCase().includes(search));
@@ -68,13 +101,16 @@ app.get("/tokens", async (c) => {
 });
 
 app.get("/tokens/:address", async (c) => {
-  const rows = await db
-    .select()
-    .from(schema.tokens)
-    .where(eq(schema.tokens.id, c.req.param("address") as `0x${string}`))
-    .limit(1);
+  const [rows, stats] = await Promise.all([
+    db
+      .select()
+      .from(schema.tokens)
+      .where(eq(schema.tokens.id, c.req.param("address") as `0x${string}`))
+      .limit(1),
+    tradeStats(),
+  ]);
   if (rows.length === 0) return c.json(null, 404);
-  return c.json(toDto(rows[0]));
+  return c.json(toDto(rows[0], stats.get((rows[0].id as string).toLowerCase())));
 });
 
 app.get("/tokens/:address/trades", async (c) => {
@@ -117,7 +153,7 @@ app.get("/creators/:creator/tokens", async (c) => {
     .from(schema.tokens)
     .where(eq(schema.tokens.creator, c.req.param("creator") as `0x${string}`))
     .orderBy(desc(schema.tokens.createdAt));
-  return c.json(rows.map(toDto));
+  return c.json(rows.map((r) => toDto(r)));
 });
 
 app.get("/stats", async (c) => {

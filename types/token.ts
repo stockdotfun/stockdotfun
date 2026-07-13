@@ -52,6 +52,11 @@ export type LaunchedToken = {
   priceUsd?: number;
   marketCapUsd?: number;
   volume24hUsd?: number;
+  /** ETH-denominated stats from the indexer/on-chain reads; the UI converts
+   *  these to USD with the live ETH price. */
+  marketCapEth?: number;
+  volume24hEth?: number;
+  holderRewardPoolEth?: number;
   holderCount?: number;
   holderRewardPoolUsd?: number;
   creatorRewardsUsd?: number;
