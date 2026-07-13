@@ -37,6 +37,9 @@ function toDto(row: any) {
     curveProgress: progress,
     holderCount: row.holderCount,
     tradeCount: row.tradeCount,
+    // ipfs:// URI of the metadata JSON (holds name/description/image); the
+    // client fetches it to render the launch image.
+    metadataURI: row.metadataURI,
     // USD stats intentionally omitted: no price oracle wired yet.
   };
 }

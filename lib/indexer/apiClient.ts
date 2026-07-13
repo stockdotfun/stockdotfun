@@ -33,6 +33,7 @@ function mapToken(t: ApiToken): LaunchedToken {
     symbol: t.symbol ?? "",
     description: t.description,
     imageUrl: t.imageUrl,
+    metadataURI: t.metadataURI,
     creator: (t.creator ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
     stockSymbol: t.stockSymbol ?? "",
     creatorRewardPreference: t.creatorRewardPreference ?? "stock", // V2 pays creators in the paired stock

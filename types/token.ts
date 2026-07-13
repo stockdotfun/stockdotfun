@@ -39,6 +39,8 @@ export type LaunchedToken = {
   symbol: string;
   description?: string;
   imageUrl?: string;
+  /** ipfs:// URI of the metadata JSON; the client resolves the image from it. */
+  metadataURI?: string;
   creator: `0x${string}`;
   stockSymbol: string;
   creatorRewardPreference: CreatorRewardPreference;

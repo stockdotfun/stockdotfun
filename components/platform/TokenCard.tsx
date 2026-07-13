@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import StockLogo from "@/components/StockLogo";
 import Badge from "@/components/ui/Badge";
+import TokenAvatar from "@/components/platform/TokenAvatar";
 import { shortAddress } from "@/lib/web3/hooks";
 import type { LaunchedToken } from "@/types/token";
 
@@ -26,19 +26,13 @@ export default function TokenCard({ token }: { token: LaunchedToken }) {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          {token.imageUrl ? (
-            <Image
-              src={token.imageUrl}
-              alt={token.name}
-              width={44}
-              height={44}
-              className="h-11 w-11 rounded-full object-cover"
-            />
-          ) : (
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-success text-[16px] font-bold text-primary-foreground">
-              {token.symbol.charAt(0)}
-            </span>
-          )}
+          <TokenAvatar
+            symbol={token.symbol}
+            imageUrl={token.imageUrl}
+            metadataURI={token.metadataURI}
+            className="h-11 w-11 rounded-full"
+            fallbackClassName="text-[16px]"
+          />
           <div>
             <p className="text-[15px] font-semibold tracking-tight text-foreground">
               ${token.symbol}

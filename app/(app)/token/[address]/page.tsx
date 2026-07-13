@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import Image from "next/image";
+import TokenAvatar from "@/components/platform/TokenAvatar";
 import { SearchX } from "lucide-react";
 import { useAccount } from "wagmi";
 import StockLogo from "@/components/StockLogo";
@@ -82,19 +82,13 @@ export default function TokenPage({
     <div>
       {/* Header */}
       <div className="flex flex-wrap items-center gap-4">
-        {token.imageUrl ? (
-          <Image
-            src={token.imageUrl}
-            alt={token.name}
-            width={56}
-            height={56}
-            className="h-14 w-14 rounded-full object-cover"
-          />
-        ) : (
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-success text-xl font-bold text-primary-foreground">
-            {token.symbol.charAt(0)}
-          </span>
-        )}
+        <TokenAvatar
+          symbol={token.symbol}
+          imageUrl={token.imageUrl}
+          metadataURI={token.metadataURI}
+          className="h-14 w-14 rounded-full"
+          fallbackClassName="text-xl"
+        />
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
