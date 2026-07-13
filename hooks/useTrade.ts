@@ -6,7 +6,12 @@ import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { wethAbi, erc20Abi, poolAbi } from "@/lib/contracts/abis";
 import { contractAddresses } from "@/lib/contracts/addresses";
 import { areContractsConfigured, explorerTxUrl } from "@/lib/config";
-import type { LaunchedToken } from "@/types/token";
+import type { LaunchedToken, TradeSide } from "@/types/token";
+
+/** Live quote result. `out` and `fee` are 18-decimal wei amounts. For a buy,
+ *  `out` is meme tokens and `fee` is the WETH fee; for a sell, `out` is WETH
+ *  received and `fee` is the WETH fee. */
+export type TradeQuote = { out: bigint; fee: bigint };
 
 export type TradeStep =
   | "idle"
@@ -69,6 +74,38 @@ export function useTrade(token: LaunchedToken) {
     setError(null);
     setTxHash(null);
   }, []);
+
+  /**
+   * Read-only quote for the current input. Returns `null` when the input is
+   * invalid, trading is unavailable, or the on-chain read reverts (e.g. the
+   * token has graduated off the curve). Never throws — the caller renders "—".
+   */
+  const quote = useCallback(
+    async (amount: string, tradeSide: TradeSide): Promise<TradeQuote | null> => {
+      if (!canTrade || !publicClient || !pool) return null;
+      const parsedAmt = parseFloat(amount);
+      if (!Number.isFinite(parsedAmt) || parsedAmt <= 0) return null;
+      let value: bigint;
+      try {
+        value = parseEther(amount);
+      } catch {
+        return null;
+      }
+      if (value <= 0n) return null;
+      try {
+        const [out, fee] = (await publicClient.readContract({
+          address: pool,
+          abi: poolAbi,
+          functionName: tradeSide === "buy" ? "quoteBuy" : "quoteSell",
+          args: [value],
+        })) as [bigint, bigint];
+        return { out, fee };
+      } catch {
+        return null;
+      }
+    },
+    [canTrade, publicClient, pool],
+  );
 
   const buy = useCallback(
     async (amountEth: string, slippagePct = "1.0") => {
@@ -219,6 +256,7 @@ export function useTrade(token: LaunchedToken) {
   return {
     buy,
     sell,
+    quote,
     step,
     stepLabel: STEP_LABEL[step],
     isBusy,

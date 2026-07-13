@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { formatEther } from "viem";
 import { Settings2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -8,8 +9,19 @@ import TransactionStatus from "@/components/platform/TransactionStatus";
 import { useWalletNetwork } from "@/lib/web3/hooks";
 import { areContractsConfigured } from "@/lib/config";
 import { DEFAULT_FEE_SPLIT } from "@/lib/data/fees";
-import { useTrade } from "@/hooks/useTrade";
+import { useTrade, type TradeQuote } from "@/hooks/useTrade";
 import type { LaunchedToken, TradeSide } from "@/types/token";
+
+/** Format an 18-decimal wei amount for display, scaling precision to size. */
+function fmtAmount(wei: bigint): string {
+  const n = Number(formatEther(wei));
+  if (!Number.isFinite(n)) return "—";
+  if (n === 0) return "0";
+  if (n >= 1_000_000) return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (n >= 1) return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  if (n >= 0.0001) return n.toLocaleString("en-US", { maximumFractionDigits: 6 });
+  return n.toExponential(2);
+}
 
 /**
  * Buy/Sell panel. Buy wraps ETH → WETH → approves → pool.buy; sell approves →
@@ -24,10 +36,35 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
   const { isConnected, wrongNetwork, connectWallet, switchToRobinhoodChain } =
     useWalletNetwork();
   const trade = useTrade(token);
+  const { quote: fetchQuote } = trade;
 
   const feePct = DEFAULT_FEE_SPLIT.totalBps / 100;
   const parsed = parseFloat(amount);
   const validAmount = !Number.isNaN(parsed) && parsed > 0;
+
+  // Live on-chain estimate (debounced). null = no quote yet / unavailable.
+  const [quote, setQuote] = useState<TradeQuote | null>(null);
+  const [quoting, setQuoting] = useState(false);
+
+  useEffect(() => {
+    if (!validAmount || !areContractsConfigured || token.isDemo) {
+      setQuote(null);
+      setQuoting(false);
+      return;
+    }
+    let cancelled = false;
+    setQuoting(true);
+    const timer = setTimeout(async () => {
+      const q = await fetchQuote(amount, side);
+      if (cancelled) return;
+      setQuote(q);
+      setQuoting(false);
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [amount, side, validAmount, token.isDemo, fetchQuote]);
 
   const disabledReason = !areContractsConfigured
     ? "Trading contracts are not configured yet."
@@ -119,13 +156,27 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
             {side === "buy" ? "You receive (est.)" : "You receive (ETH, est.)"}
           </span>
           <span className="text-foreground">
-            {areContractsConfigured ? "—" : "n/a"}
+            {!areContractsConfigured
+              ? "n/a"
+              : !validAmount
+                ? "—"
+                : quoting
+                  ? "…"
+                  : quote
+                    ? side === "buy"
+                      ? `${fmtAmount(quote.out)} $${token.symbol}`
+                      : `${fmtAmount(quote.out)} ETH`
+                    : "—"}
           </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Fee ({feePct}%)</span>
           <span className="text-foreground">
-            {validAmount ? ((parsed * feePct) / 100).toFixed(4) : "—"}
+            {quote
+              ? `${fmtAmount(quote.fee)} ETH`
+              : validAmount
+                ? `${((parsed * feePct) / 100).toFixed(4)} ETH`
+                : "—"}
           </span>
         </div>
         <div className="flex justify-between">
