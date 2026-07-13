@@ -20,10 +20,15 @@ const STOCK_SYMBOLS: Record<string, string> = {
 };
 
 function toDto(row: any) {
+  // Fractional percent (4-decimal resolution) so small-but-real progress isn't
+  // floored to 0 by integer division — e.g. 0.0008 ETH of a 4.4 ETH target = 0.02%.
   const progress =
     row.lifecycle === "GRADUATED"
       ? 100
-      : Math.min(100, Number((row.realQuote * 100n) / (GRAD_TARGET === 0n ? 1n : GRAD_TARGET)));
+      : Math.min(
+          100,
+          Number((row.realQuote * 1_000_000n) / (GRAD_TARGET === 0n ? 1n : GRAD_TARGET)) / 10_000,
+        );
   return {
     address: row.id,
     pool: row.pool,

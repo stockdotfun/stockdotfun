@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import StockLogo from "@/components/StockLogo";
 import Badge from "@/components/ui/Badge";
+import { curveProgressLabel, curveBarWidth } from "@/lib/format/curve";
 import type { LaunchedToken } from "@/types/token";
 
 const fmt = (n?: number) =>
@@ -67,11 +68,11 @@ export default function TokenTable({ tokens }: { tokens: LaunchedToken[] }) {
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-border-soft">
                       <div
                         className="h-full rounded-full bg-primary"
-                        style={{ width: `${t.curveProgress}%` }}
+                        style={{ width: curveBarWidth(t.curveProgress) }}
                       />
                     </div>
                     <span className="text-[10.5px] text-muted-foreground">
-                      {t.curveProgress}%
+                      {curveProgressLabel(t.curveProgress)}%
                     </span>
                   </div>
                 </td>

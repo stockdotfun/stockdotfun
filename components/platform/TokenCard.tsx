@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import StockLogo from "@/components/StockLogo";
 import Badge from "@/components/ui/Badge";
 import TokenAvatar from "@/components/platform/TokenAvatar";
+import { curveProgressLabel, curveBarWidth } from "@/lib/format/curve";
 import { shortAddress } from "@/lib/web3/hooks";
 import type { LaunchedToken } from "@/types/token";
 
@@ -69,12 +70,12 @@ export default function TokenCard({ token }: { token: LaunchedToken }) {
           <span>
             {token.status === "graduated" ? "Graduated" : "Curve progress"}
           </span>
-          <span>{token.curveProgress}%</span>
+          <span>{curveProgressLabel(token.curveProgress)}%</span>
         </div>
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-border-soft">
           <div
             className="h-full rounded-full bg-primary"
-            style={{ width: `${token.curveProgress}%` }}
+            style={{ width: curveBarWidth(token.curveProgress) }}
           />
         </div>
       </div>

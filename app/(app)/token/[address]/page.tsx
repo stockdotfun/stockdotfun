@@ -18,6 +18,7 @@ import RewardClaimCard from "@/components/platform/RewardClaimCard";
 import { useTokenDetail } from "@/hooks/useExploreTokens";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { formatUsd } from "@/lib/format/usd";
+import { curveProgressLabel, curveBarWidth } from "@/lib/format/curve";
 import { shortAddress } from "@/lib/web3/hooks";
 import { stockName } from "@/components/StockLogo";
 
@@ -232,12 +233,12 @@ export default function TokenPage({
             <CardBody>
               <div className="flex items-center justify-between font-mono text-[11px] text-muted-foreground">
                 <span>Graduation</span>
-                <span>{token.curveProgress}%</span>
+                <span>{curveProgressLabel(token.curveProgress)}%</span>
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-border-soft">
                 <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${token.curveProgress}%` }}
+                  className="h-full rounded-full bg-primary transition-[width]"
+                  style={{ width: curveBarWidth(token.curveProgress) }}
                 />
               </div>
               <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground">
