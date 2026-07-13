@@ -1,10 +1,13 @@
 /**
  * Resolve an ipfs:// URI (or bare CID) to an HTTP gateway URL for the browser.
- * Content is pinned on Pinata, so the Pinata public gateway is the default;
- * override with NEXT_PUBLIC_IPFS_GATEWAY (e.g. a dedicated Pinata gateway).
+ * Content is pinned on Pinata and available network-wide. The default is ipfs.io
+ * because Pinata's SHARED public gateway is heavily throttled (~5s/image here)
+ * while ipfs.io serves the same CID in ~1s. For the best speed + reliability,
+ * set NEXT_PUBLIC_IPFS_GATEWAY to a DEDICATED Pinata gateway
+ * (e.g. https://<your-subdomain>.mypinata.cloud/ipfs).
  */
 const GATEWAY = (
-  process.env.NEXT_PUBLIC_IPFS_GATEWAY ?? "https://gateway.pinata.cloud/ipfs"
+  process.env.NEXT_PUBLIC_IPFS_GATEWAY ?? "https://ipfs.io/ipfs"
 ).replace(/\/+$/, "");
 
 export function ipfsToHttp(uri?: string | null): string | null {
