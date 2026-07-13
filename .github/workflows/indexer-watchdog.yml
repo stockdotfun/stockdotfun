@@ -33,34 +33,52 @@ jobs:
     timeout-minutes: 5
     env:
       INDEXER_URL: ${{ vars.INDEXER_URL || 'https://stockdotfun-indexer.onrender.com' }}
+      RPC_URL: ${{ vars.RHC_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com' }}
+      FACTORY: ${{ vars.FACTORY_ADDRESS || '0x470aca74d71269833de8cf65640dfb558393569e' }}
       DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
     steps:
-      # STUCK-detector, not lag-vs-head: Ponder's /status reports the FINALIZED
-      # block, and Robinhood Chain's finality trails the head by ~200k blocks, so
-      # "lag vs head" always looks huge and would redeploy every run. Instead we
-      # check whether the indexer's block ADVANCES over ~90s. A healthy indexer
-      # moves; a hung one doesn't → then (and only then) re-sync.
-      - name: Re-sync only if the indexer is stuck (not advancing)
+      # Re-sync when the indexer has fallen behind the chain — measured by the
+      # user-facing symptom, not a block number (Ponder's /status reports the
+      # FINALIZED block, which trails the head by ~200k on Robinhood Chain, so a
+      # raw "lag vs head" is meaningless). Two robust signals:
+      #   1) on-chain token count > indexed token count (a launch isn't showing)
+      #   2) indexer block frozen over ~60s (genuinely hung)
+      # A confirm re-check avoids re-syncing on a token that's just seconds old.
+      - name: Re-sync if indexed tokens fall behind on-chain, or if stuck
         run: |
           set -u
-          getblk() {
-            curl -s -m 30 "$INDEXER_URL/status" \
-              | python3 -c "import sys,json;print(json.load(sys.stdin)['robinhood']['block']['number'])" 2>/dev/null || echo ""
+          onchain_tokens() {
+            hex=$(curl -s -m 30 -X POST "$RPC_URL" -H 'content-type: application/json' \
+              --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$FACTORY\",\"data\":\"0xdbb80e42\"},\"latest\"]}" \
+              | python3 -c "import sys,json;print(int(json.load(sys.stdin)['result'],16))" 2>/dev/null || echo "")
+            echo "$hex"
           }
-          b1=$(getblk)
-          if [ -z "$b1" ]; then echo "Indexer /status unreachable; skipping."; exit 0; fi
-          sleep 90
-          b2=$(getblk)
-          if [ -z "$b2" ]; then echo "Indexer /status unreachable on second read; skipping."; exit 0; fi
-          echo "indexer block: $b1 -> $b2 over 90s (advanced $((b2 - b1)))"
-          if [ "$b2" -gt "$b1" ]; then
-            echo "Indexer is advancing — healthy, no action."
+          indexed_tokens() { curl -s -m 30 "$INDEXER_URL/tokens" | python3 -c "import sys,json;print(len(json.load(sys.stdin)))" 2>/dev/null || echo ""; }
+          getblk() { curl -s -m 30 "$INDEXER_URL/status" | python3 -c "import sys,json;print(json.load(sys.stdin)['robinhood']['block']['number'])" 2>/dev/null || echo ""; }
+
+          oc=$(onchain_tokens); ix=$(indexed_tokens); b1=$(getblk)
+          echo "on-chain tokens=$oc | indexed=$ix | indexer block=$b1"
+          if [ -z "$oc" ] || [ -z "$ix" ] || [ -z "$b1" ]; then echo "A read failed; skipping this run."; exit 0; fi
+
+          behind=0; stuck=0
+          [ "$oc" -gt "$ix" ] && behind=1
+          if [ "$behind" -eq 0 ]; then
+            sleep 60; b2=$(getblk)
+            if [ -n "$b2" ] && [ "$b2" -le "$b1" ]; then stuck=1; echo "indexer block frozen ($b1 -> $b2 in 60s)"; fi
+          else
+            # confirm the token gap persists (not a brand-new launch mid-index)
+            sleep 45; ix2=$(indexed_tokens)
+            [ -n "$ix2" ] && [ "$oc" -gt "$ix2" ] && behind=1 || behind=0
+          fi
+
+          if [ "$behind" -eq 0 ] && [ "$stuck" -eq 0 ]; then
+            echo "Indexer healthy (data current, block advancing) — no action."
             exit 0
           fi
           if [ -z "$DEPLOY_HOOK" ]; then
-            echo "::warning::Indexer is stuck at block $b1 but RENDER_DEPLOY_HOOK_URL is not set — cannot auto re-sync."
+            echo "::warning::Indexer needs a re-sync (behind=$behind stuck=$stuck) but RENDER_DEPLOY_HOOK_URL is not set."
             exit 0
           fi
-          echo "Indexer stuck at block $b1 (no advance in 90s). Triggering a Render re-sync..."
+          echo "Re-syncing indexer (behind=$behind stuck=$stuck)..."
           code=$(curl -s -m 30 -o /dev/null -w "%{http_code}" -X POST "$DEPLOY_HOOK")
           echo "Deploy hook responded HTTP $code."

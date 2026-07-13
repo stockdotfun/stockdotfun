@@ -26,7 +26,13 @@ const tokenCreated = getAbiItem({ abi: FactoryAbi, name: "TokenCreated" });
 // maxRequestsPerSecond is kept conservative for the dedicated RPC so we stay
 // within a typical free-tier compute-unit budget.
 const PUBLIC_RPC = "https://rpc.mainnet.chain.robinhood.com";
-const DEDICATED = process.env.PONDER_RPC_URL_4663;
+// The dedicated RPC is OPT-IN via PONDER_USE_DEDICATED=true. Alchemy's Robinhood
+// Chain endpoint hangs Ponder's sync after the initial backfill (it stops
+// fetching new data), so we default to the public RPC, which is slower but
+// reliable and never hangs. Set the flag only with a provider proven to sync
+// cleanly (e.g. QuickNode).
+const DEDICATED =
+  process.env.PONDER_USE_DEDICATED === "true" ? process.env.PONDER_RPC_URL_4663 : undefined;
 const RPC_LIST = DEDICATED
   ? DEDICATED.split(",").map((s) => s.trim()).filter(Boolean)
   : Array.from({ length: 6 }, () => PUBLIC_RPC);
