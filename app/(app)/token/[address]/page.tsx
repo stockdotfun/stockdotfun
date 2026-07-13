@@ -16,6 +16,8 @@ import CandleChart from "@/components/platform/CandleChart";
 import CreatorRewardCard from "@/components/platform/CreatorRewardCard";
 import RewardClaimCard from "@/components/platform/RewardClaimCard";
 import { useTokenDetail } from "@/hooks/useExploreTokens";
+import { useEthPrice } from "@/hooks/useEthPrice";
+import { formatUsd } from "@/lib/format/usd";
 import { shortAddress } from "@/lib/web3/hooks";
 import { stockName } from "@/components/StockLogo";
 
@@ -46,6 +48,7 @@ export default function TokenPage({
   const { address } = use(params);
   const { token, trades, isLoading } = useTokenDetail(address);
   const { address: viewer } = useAccount();
+  const ethUsd = useEthPrice();
 
   if (isLoading) {
     return (
@@ -72,8 +75,8 @@ export default function TokenPage({
   const isCreator =
     viewer && viewer.toLowerCase() === token.creator.toLowerCase();
 
-  // Live market-cap / volume in ETH, derived from indexed trades (no USD oracle).
-  // Market cap = latest price-per-token × 1e9 fixed supply.
+  // Live market-cap / volume, derived from indexed trades and priced in USD via
+  // the ETH/USD rate (WETH ≈ ETH). Market cap = latest price-per-token × 1e9.
   const priced = trades.filter((t) => (t.quoteAmountEth ?? 0) > 0 && t.tokenAmount > 0);
   const latest = priced.length
     ? priced.reduce((a, b) => (b.timestamp > a.timestamp ? b : a))
@@ -83,8 +86,13 @@ export default function TokenPage({
   const volume24hEth = priced
     .filter((t) => t.timestamp >= cutoff)
     .reduce((s, t) => s + (t.quoteAmountEth ?? 0), 0);
-  const ethLabel = (n?: number, dp = 4) =>
-    n === undefined ? "—" : `${n.toLocaleString("en-US", { maximumFractionDigits: dp })} ETH`;
+
+  const usdOrEth = (eth?: number) =>
+    eth === undefined
+      ? "—"
+      : ethUsd
+        ? formatUsd(eth * ethUsd)
+        : `${eth.toLocaleString("en-US", { maximumFractionDigits: 4 })} ETH`;
 
 
   return (
@@ -138,8 +146,8 @@ export default function TokenPage({
           label="Price"
           value={token.priceUsd !== undefined ? `$${token.priceUsd}` : "—"}
         />
-        <StatCard label="Market cap" value={ethLabel(marketCapEth)} />
-        <StatCard label="24h volume" value={ethLabel(volume24hEth || undefined)} />
+        <StatCard label="Market cap" value={usdOrEth(marketCapEth)} />
+        <StatCard label="24h volume" value={usdOrEth(volume24hEth || undefined)} />
         <StatCard
           label="Holder reward pool"
           value={fmt(token.holderRewardPoolUsd)}
@@ -154,7 +162,7 @@ export default function TokenPage({
           <Card>
             <CardHeader title="Market cap" mono />
             <CardBody>
-              <CandleChart trades={trades} symbol={token.symbol} />
+              <CandleChart trades={trades} symbol={token.symbol} usdPerEth={ethUsd} />
             </CardBody>
           </Card>
 
