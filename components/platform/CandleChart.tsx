@@ -31,7 +31,7 @@ export default function CandleChart({
    *  line for a coin with no indexed trades yet. */
   spotMcapEth?: number;
 }) {
-  const [bucketSec, setBucketSec] = useState<number>(60);
+  const [bucketSec, setBucketSec] = useState<number>(1);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const usd = !!(usdPerEth && usdPerEth > 0);
@@ -123,7 +123,18 @@ export default function CandleChart({
         },
         grid: { vertLines: { color: grid }, horzLines: { color: grid } },
         rightPriceScale: { borderColor: grid, scaleMargins: { top: 0.18, bottom: 0.25 } },
-        timeScale: { borderColor: grid, timeVisible: true, secondsVisible: bucketSec < 60 },
+        timeScale: {
+          borderColor: grid,
+          timeVisible: true,
+          secondsVisible: bucketSec < 60,
+          // Thin, fixed-width candles like pump.fun. maxBarSpacing CLAMPS how wide
+          // a bar can get, so a lone candle can never balloon to fill the pane;
+          // rightOffset leaves breathing room to the right of the newest bar.
+          barSpacing: 8,
+          minBarSpacing: 2,
+          maxBarSpacing: 14,
+          rightOffset: 8,
+        },
         crosshair: { mode: CrosshairMode.Normal },
         localization: { priceFormatter: (p: number) => compact(p) },
       });
@@ -164,13 +175,23 @@ export default function CandleChart({
         }
       });
 
-      chart.timeScale().fitContent();
+      // pump.fun-style framing (never the giant-candle fitContent): a fresh coin's
+      // few candles sit at the LEFT with room to grow rightward; an active coin
+      // shows its most recent ~60 candles. maxBarSpacing keeps bodies thin either way.
+      const frame = () => {
+        if (!chart) return;
+        const n = candles.length;
+        const ts = chart.timeScale();
+        if (n > 60) ts.setVisibleLogicalRange({ from: n - 60, to: n + 8 });
+        else ts.setVisibleLogicalRange({ from: -1, to: Math.max(n + 8, 40) });
+      };
+      frame();
 
       ro = new ResizeObserver((entries) => {
         const w = entries[0]?.contentRect.width;
         if (w && chart) {
           chart.applyOptions({ width: Math.floor(w) });
-          chart.timeScale().fitContent();
+          frame();
         }
       });
       ro.observe(el);

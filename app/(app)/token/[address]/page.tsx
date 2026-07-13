@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import TokenAvatar from "@/components/platform/TokenAvatar";
-import { SearchX } from "lucide-react";
+import { SearchX, Globe, Send } from "lucide-react";
 import { useAccount } from "wagmi";
 import StockLogo from "@/components/StockLogo";
 import Badge from "@/components/ui/Badge";
@@ -17,8 +17,10 @@ import CreatorRewardCard from "@/components/platform/CreatorRewardCard";
 import RewardClaimCard from "@/components/platform/RewardClaimCard";
 import { useTokenDetail } from "@/hooks/useExploreTokens";
 import { useOnchainSpot } from "@/hooks/useTokenLive";
+import { useTokenMetadata } from "@/hooks/useTokenMetadata";
 import TokenActivity from "@/components/platform/TokenActivity";
 import { useEthPrice } from "@/hooks/useEthPrice";
+import { safeHttpUrl, twitterUrl, telegramUrl } from "@/lib/format/socials";
 import { formatUsd } from "@/lib/format/usd";
 import { curveProgressLabel, curveBarWidth } from "@/lib/format/curve";
 import { GRADUATION_MARKET_CAP_ETH } from "@/lib/curve/graduation";
@@ -57,6 +59,9 @@ export default function TokenPage({
   // Live curve spot — price + market cap are available the instant the coin
   // exists, before any trade is indexed.
   const spot = useOnchainSpot(token?.address);
+  // Full launch metadata (image/description/socials) from IPFS. Disabled until
+  // the token (and its metadataURI) loads, so it's safe before the early returns.
+  const { data: meta } = useTokenMetadata(token?.metadataURI);
 
   if (isLoading) {
     return (
@@ -127,6 +132,51 @@ export default function TokenPage({
           <p className="mt-0.5 text-[13px] text-muted-foreground">
             {token.name} · by {shortAddress(token.creator)}
           </p>
+          {(() => {
+            const web = safeHttpUrl(meta?.website);
+            const tw = twitterUrl(meta?.twitter);
+            const tg = telegramUrl(meta?.telegram);
+            if (!web && !tw && !tg) return null;
+            return (
+              <div className="mt-1.5 flex items-center gap-3 text-muted-foreground">
+                {web && (
+                  <a
+                    href={web}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    aria-label="Website"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    <Globe size={15} />
+                  </a>
+                )}
+                {tw && (
+                  <a
+                    href={tw}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    aria-label="X / Twitter"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </a>
+                )}
+                {tg && (
+                  <a
+                    href={tg}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    aria-label="Telegram"
+                    className="transition-colors hover:text-foreground"
+                  >
+                    <Send size={15} />
+                  </a>
+                )}
+              </div>
+            );
+          })()}
         </div>
         <div className="ml-auto flex flex-col items-end gap-2">
           <span className="flex items-center gap-2 rounded-full border border-border bg-muted px-3.5 py-1.5">
@@ -142,9 +192,9 @@ export default function TokenPage({
         </div>
       </div>
 
-      {token.description && (
+      {(token.description ?? meta?.description) && (
         <p className="mt-4 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
-          {token.description}
+          {token.description ?? meta?.description}
         </p>
       )}
 

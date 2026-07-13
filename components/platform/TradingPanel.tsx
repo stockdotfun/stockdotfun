@@ -12,7 +12,15 @@ import { areContractsConfigured } from "@/lib/config";
 import { DEFAULT_FEE_SPLIT } from "@/lib/data/fees";
 import { erc20Abi } from "@/lib/contracts/abis";
 import { useTrade, type TradeQuote } from "@/hooks/useTrade";
+import { useEthPrice } from "@/hooks/useEthPrice";
 import type { LaunchedToken, TradeSide } from "@/types/token";
+
+/** Compact USD label for trade amounts. */
+function fmtUsd(n: number): string {
+  if (!Number.isFinite(n)) return "";
+  if (n > 0 && n < 0.01) return "<$0.01";
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
 
 /** Format an 18-decimal balance for a compact display label. */
 function fmtBalance(wei: bigint): string {
@@ -24,6 +32,7 @@ function fmtBalance(wei: bigint): string {
 }
 
 const SELL_PERCENTS = [10, 25, 50, 100] as const;
+const BUY_USD_PRESETS = [10, 50, 100, 500] as const;
 
 /** Format an 18-decimal wei amount for display, scaling precision to size. */
 function fmtAmount(wei: bigint): string {
@@ -51,6 +60,7 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
   const { address } = useAccount();
   const trade = useTrade(token);
   const { quote: fetchQuote } = trade;
+  const ethUsd = useEthPrice();
 
   // Connected wallet's balance of this meme token (for sell % quick-select).
   const { data: tokenBalance } = useReadContract({
@@ -66,6 +76,13 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
     if (balance <= 0n) return;
     const wei = pct >= 100 ? balance : (balance * BigInt(pct)) / 100n;
     setAmount(formatEther(wei));
+  };
+
+  // Buy quick-amounts are denominated in USD (pump.fun-style) and converted to
+  // the ETH the input expects via the live ETH price.
+  const setBuyUsd = (usd: number) => {
+    if (!ethUsd) return;
+    setAmount((usd / ethUsd).toFixed(6));
   };
 
   const feePct = DEFAULT_FEE_SPLIT.totalBps / 100;
@@ -157,6 +174,25 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
           onChange={(e) => setAmount(e.target.value)}
           className="mt-1.5 w-full rounded-xl border border-input bg-background px-3.5 py-3 font-mono text-[18px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary"
         />
+        {side === "buy" && ethUsd !== undefined && validAmount && (
+          <div className="mt-1 text-right font-mono text-[10.5px] text-muted-foreground">
+            ≈ {fmtUsd(parsed * ethUsd)}
+          </div>
+        )}
+        {side === "buy" && !token.isDemo && ethUsd !== undefined && (
+          <div className="mt-2 flex gap-1.5">
+            {BUY_USD_PRESETS.map((usd) => (
+              <button
+                key={usd}
+                type="button"
+                onClick={() => setBuyUsd(usd)}
+                className="flex-1 rounded-lg border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+              >
+                ${usd}
+              </button>
+            ))}
+          </div>
+        )}
         {side === "sell" && isConnected && !token.isDemo && (
           <div className="mt-2 flex items-center justify-between gap-2">
             <div className="flex gap-1.5">
@@ -215,7 +251,7 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
                   : quote
                     ? side === "buy"
                       ? `${fmtAmount(quote.out)} $${token.symbol}`
-                      : `${fmtAmount(quote.out)} ETH`
+                      : `${fmtAmount(quote.out)} ETH${ethUsd !== undefined ? ` · ${fmtUsd(Number(formatEther(quote.out)) * ethUsd)}` : ""}`
                     : "—"}
           </span>
         </div>
@@ -223,7 +259,7 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
           <span className="text-muted-foreground">Fee ({feePct}%)</span>
           <span className="text-foreground">
             {quote
-              ? `${fmtAmount(quote.fee)} ETH`
+              ? `${fmtAmount(quote.fee)} ETH${ethUsd !== undefined ? ` · ${fmtUsd(Number(formatEther(quote.fee)) * ethUsd)}` : ""}`
               : validAmount
                 ? `${((parsed * feePct) / 100).toFixed(4)} ETH`
                 : "—"}
