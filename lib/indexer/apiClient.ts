@@ -4,7 +4,8 @@
  * results — it never fabricates stats. Fields the indexer cannot yet provide
  * (e.g. USD prices without an oracle) are left undefined.
  */
-import type { LaunchedToken, TokenTrade } from "@/types/token";
+import { formatEther } from "viem";
+import type { LaunchedToken, TokenTrade, TradeSide } from "@/types/token";
 import type { ExploreQuery, IndexerClient } from "@/lib/indexer/types";
 
 const BASE = process.env.NEXT_PUBLIC_INDEXER_URL?.replace(/\/$/, "") ?? "";
@@ -63,8 +64,26 @@ export const externalClient: IndexerClient = {
     return data ? mapToken(data) : null;
   },
   async getTrades(tokenAddress: string) {
-    const data = await get<TokenTrade[]>(`/tokens/${tokenAddress}/trades`);
-    return data ?? [];
+    // The indexer returns raw on-chain amounts (wei); there is no USD oracle
+    // wired, so we surface real ETH values. Shape:
+    // { id, side, trader, quoteAmount, tokenAmount, timestamp }.
+    type ApiTrade = {
+      id: string;
+      side: string;
+      trader: string;
+      quoteAmount: string;
+      tokenAmount: string;
+      timestamp: number;
+    };
+    const data = await get<ApiTrade[]>(`/tokens/${tokenAddress}/trades`);
+    return (data ?? []).map<TokenTrade>((t) => ({
+      txHash: t.id.split("-")[0],
+      side: (t.side === "sell" ? "sell" : "buy") as TradeSide,
+      account: t.trader as `0x${string}`,
+      quoteAmountEth: Number(formatEther(BigInt(t.quoteAmount))),
+      tokenAmount: Number(formatEther(BigInt(t.tokenAmount))),
+      timestamp: t.timestamp,
+    }));
   },
   async getTokensByCreator(creator: string) {
     const data = await get<ApiToken[]>(`/creators/${creator}/tokens`);

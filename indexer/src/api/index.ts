@@ -99,7 +99,14 @@ app.get("/creators/:creator/tokens", async (c) => {
 
 app.get("/stats", async (c) => {
   const rows = await db.select().from(schema.protocolMetrics).where(eq(schema.protocolMetrics.id, "global")).limit(1);
-  return c.json(rows[0] ?? { totalTokens: 0, totalGraduated: 0, totalVolumeQuote: "0" });
+  const r = rows[0];
+  if (!r) return c.json({ totalTokens: 0, totalGraduated: 0, totalVolumeQuote: "0" });
+  // protocolMetrics has bigint columns; JSON cannot serialize BigInt directly.
+  return c.json({
+    totalTokens: Number(r.totalTokens ?? 0),
+    totalGraduated: Number(r.totalGraduated ?? 0),
+    totalVolumeQuote: (r.totalVolumeQuote ?? 0n).toString(),
+  });
 });
 
 export default app;

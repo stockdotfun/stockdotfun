@@ -63,7 +63,10 @@ export type TokenTrade = {
   txHash: string;
   side: TradeSide;
   account: `0x${string}`;
-  quoteAmountUsd: number;
+  /** USD value — only available for demo data (no price oracle live yet). */
+  quoteAmountUsd?: number;
+  /** Real ETH quote amount from the indexer (buy: ETH in, sell: ETH out). */
+  quoteAmountEth?: number;
   tokenAmount: number;
   timestamp: number;
   isDemo?: boolean;

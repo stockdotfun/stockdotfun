@@ -28,6 +28,16 @@ const fmt = (n?: number) =>
         ? `$${(n / 1_000).toFixed(1)}K`
         : `$${n.toFixed(0)}`;
 
+/** Compact number formatter that scales precision to magnitude. */
+const fmtNum = (n: number, maxFrac = 4) => {
+  if (!Number.isFinite(n)) return "0";
+  if (n === 0) return "0";
+  if (n >= 1_000_000) return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (n >= 1) return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  if (n >= 0.0001) return n.toLocaleString("en-US", { maximumFractionDigits: maxFrac });
+  return n.toExponential(2);
+};
+
 export default function TokenPage({
   params,
 }: {
@@ -61,6 +71,12 @@ export default function TokenPage({
 
   const isCreator =
     viewer && viewer.toLowerCase() === token.creator.toLowerCase();
+
+  // Price series from indexed trades: ETH paid/received per token, oldest→newest.
+  const chartPoints = [...trades]
+    .filter((t) => (t.quoteAmountEth ?? 0) > 0 && t.tokenAmount > 0)
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .map((t) => ({ time: t.timestamp, value: t.quoteAmountEth! / t.tokenAmount }));
 
   return (
     <div>
@@ -135,7 +151,7 @@ export default function TokenPage({
           <Card>
             <CardHeader title="Price chart" mono />
             <CardBody>
-              <TokenChart />
+              <TokenChart points={chartPoints} />
             </CardBody>
           </Card>
 
@@ -149,9 +165,9 @@ export default function TokenPage({
               ) : (
                 <table className="w-full text-left font-mono text-[12px]">
                   <tbody>
-                    {trades.map((tr) => (
+                    {trades.map((tr, i) => (
                       <tr
-                        key={tr.txHash}
+                        key={`${tr.txHash}-${i}`}
                         className="border-b border-border-soft last:border-0"
                       >
                         <td className="px-5 py-3">
@@ -169,10 +185,12 @@ export default function TokenPage({
                           )}
                         </td>
                         <td className="px-5 py-3 text-foreground">
-                          ${tr.quoteAmountUsd.toLocaleString()}
+                          {tr.quoteAmountUsd !== undefined
+                            ? `$${tr.quoteAmountUsd.toLocaleString()}`
+                            : `${fmtNum(tr.quoteAmountEth ?? 0, 6)} ETH`}
                         </td>
                         <td className="px-5 py-3 text-muted-foreground">
-                          {tr.tokenAmount.toLocaleString()} {token.symbol}
+                          {fmtNum(tr.tokenAmount, 2)} {token.symbol}
                         </td>
                         <td className="px-5 py-3 text-right text-muted-foreground">
                           {shortAddress(tr.account, 3)}

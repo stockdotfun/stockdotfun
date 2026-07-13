@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatEther } from "viem";
+import { useAccount, useReadContract } from "wagmi";
 import { Settings2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -9,8 +10,20 @@ import TransactionStatus from "@/components/platform/TransactionStatus";
 import { useWalletNetwork } from "@/lib/web3/hooks";
 import { areContractsConfigured } from "@/lib/config";
 import { DEFAULT_FEE_SPLIT } from "@/lib/data/fees";
+import { erc20Abi } from "@/lib/contracts/abis";
 import { useTrade, type TradeQuote } from "@/hooks/useTrade";
 import type { LaunchedToken, TradeSide } from "@/types/token";
+
+/** Format an 18-decimal balance for a compact display label. */
+function fmtBalance(wei: bigint): string {
+  const n = Number(formatEther(wei));
+  if (n === 0) return "0";
+  if (n >= 1_000_000) return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (n >= 1) return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return n.toLocaleString("en-US", { maximumFractionDigits: 6 });
+}
+
+const SELL_PERCENTS = [10, 25, 50, 100] as const;
 
 /** Format an 18-decimal wei amount for display, scaling precision to size. */
 function fmtAmount(wei: bigint): string {
@@ -35,8 +48,25 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
   const [showSlippage, setShowSlippage] = useState(false);
   const { isConnected, wrongNetwork, connectWallet, switchToRobinhoodChain } =
     useWalletNetwork();
+  const { address } = useAccount();
   const trade = useTrade(token);
   const { quote: fetchQuote } = trade;
+
+  // Connected wallet's balance of this meme token (for sell % quick-select).
+  const { data: tokenBalance } = useReadContract({
+    address: token.address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address && !token.isDemo && areContractsConfigured },
+  });
+  const balance = (tokenBalance as bigint | undefined) ?? 0n;
+
+  const setSellPercent = (pct: number) => {
+    if (balance <= 0n) return;
+    const wei = pct >= 100 ? balance : (balance * BigInt(pct)) / 100n;
+    setAmount(formatEther(wei));
+  };
 
   const feePct = DEFAULT_FEE_SPLIT.totalBps / 100;
   const parsed = parseFloat(amount);
@@ -127,6 +157,26 @@ export default function TradingPanel({ token }: { token: LaunchedToken }) {
           onChange={(e) => setAmount(e.target.value)}
           className="mt-1.5 w-full rounded-xl border border-input bg-background px-3.5 py-3 font-mono text-[18px] text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary"
         />
+        {side === "sell" && isConnected && !token.isDemo && (
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <div className="flex gap-1.5">
+              {SELL_PERCENTS.map((pct) => (
+                <button
+                  key={pct}
+                  type="button"
+                  disabled={balance <= 0n}
+                  onClick={() => setSellPercent(pct)}
+                  className="rounded-lg border border-border px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {pct === 100 ? "MAX" : `${pct}%`}
+                </button>
+              ))}
+            </div>
+            <span className="font-mono text-[10px] text-muted-foreground">
+              Balance: {fmtBalance(balance)} ${token.symbol}
+            </span>
+          </div>
+        )}
         {showSlippage && (
           <div className="mt-2 flex items-center gap-2">
             {["0.5", "1.0", "2.0"].map((s) => (
