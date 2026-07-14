@@ -12,6 +12,10 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import MotionSection from "@/components/MotionSection";
 import HeroVideoBackground from "@/components/hero/HeroVideoBackground";
+import ContractAddressBadge from "@/components/ContractAddressBadge";
+
+/** Official $STOCK platform token on Robinhood Chain (name "StockDotFun"). */
+const STOCK_CA = "0x50b6c0b23f5509c5467a76f8a5d2a4ef46be8888";
 
 const PAIRS = [
   { meme: "$DOGECEO", stock: "TSLA", change: "+18.4%", curve: 63 },
@@ -273,7 +277,13 @@ export default function Hero({ video }: { video?: HeroVideoSources }) {
           </div>
         </MotionSection>
 
-        <MotionSection delay={0.36}>
+        <MotionSection delay={0.34}>
+          <div className="mt-6 flex justify-center">
+            <ContractAddressBadge address={STOCK_CA} label="$STOCK" />
+          </div>
+        </MotionSection>
+
+        <MotionSection delay={0.42}>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {TRUST_PILLS.map((pill) => (
               <span
