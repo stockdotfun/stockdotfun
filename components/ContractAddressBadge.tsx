@@ -12,12 +12,15 @@ import { explorerAddressUrl } from "@/lib/config";
 export default function ContractAddressBadge({
   address,
   label = "$STOCK",
+  href,
 }: {
   address: string;
   label?: string;
+  /** Where the address links to. Defaults to the block explorer. */
+  href?: string;
 }) {
   const [copied, setCopied] = useState(false);
-  const explorer = explorerAddressUrl(address);
+  const link = href ?? explorerAddressUrl(address);
 
   const copy = () => {
     navigator.clipboard.writeText(address);
@@ -30,34 +33,29 @@ export default function ContractAddressBadge({
       <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
         {label} CA
       </span>
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open ${label} — ${address}`}
+        className="group flex min-w-0 items-center gap-1.5 transition-colors"
+      >
+        <span className="break-all font-mono text-[11px] text-foreground transition-colors group-hover:text-primary sm:text-[13px]">
+          {address}
+        </span>
+        <ExternalLink
+          size={13}
+          className="shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+        />
+      </a>
       <button
         type="button"
         onClick={copy}
         aria-label={`Copy ${label} contract address`}
-        className="group flex min-w-0 items-center gap-2 transition-colors"
+        className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
       >
-        <span className="break-all font-mono text-[11px] text-foreground sm:text-[13px]">
-          {address}
-        </span>
-        <span className="shrink-0 text-muted-foreground transition-colors group-hover:text-foreground">
-          {copied ? (
-            <Check size={14} className="text-primary" />
-          ) : (
-            <Copy size={14} />
-          )}
-        </span>
+        {copied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
       </button>
-      {explorer && (
-        <a
-          href={explorer}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="View contract on explorer"
-          className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ExternalLink size={14} />
-        </a>
-      )}
       {copied && (
         <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-primary">
           Copied

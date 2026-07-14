@@ -16,6 +16,8 @@ import ContractAddressBadge from "@/components/ContractAddressBadge";
 
 /** Official $STOCK platform token on Robinhood Chain (name "StockDotFun"). */
 const STOCK_CA = "0x50b6c0b23f5509c5467a76f8a5d2a4ef46be8888";
+/** Clicking the CA opens the token's flap.sh trading page. */
+const STOCK_CA_LINK = `https://flap.sh/robinhood/${STOCK_CA}?lang=en`;
 
 const PAIRS = [
   { meme: "$DOGECEO", stock: "TSLA", change: "+18.4%", curve: 63 },
@@ -279,7 +281,7 @@ export default function Hero({ video }: { video?: HeroVideoSources }) {
 
         <MotionSection delay={0.34}>
           <div className="mt-6 flex justify-center">
-            <ContractAddressBadge address={STOCK_CA} label="$STOCK" />
+            <ContractAddressBadge address={STOCK_CA} label="$STOCK" href={STOCK_CA_LINK} />
           </div>
         </MotionSection>
 
