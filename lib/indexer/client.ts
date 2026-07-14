@@ -3,6 +3,7 @@ import { DEMO_TOKENS, DEMO_TRADES } from "@/lib/data/tokens";
 import type { LaunchedToken } from "@/types/token";
 import type { ExploreQuery, IndexerClient } from "@/lib/indexer/types";
 import { externalClient, indexerApiConfigured } from "@/lib/indexer/apiClient";
+import { isHiddenToken } from "@/lib/indexer/hidden";
 
 function applyQuery(tokens: LaunchedToken[], q: ExploreQuery): LaunchedToken[] {
   let out = [...tokens];
@@ -121,12 +122,16 @@ function withOnchainFreshness(base: IndexerClient): IndexerClient {
         const fresh = (await fetchFreshTokens(indexed.length)).filter(
           (t) => !known.has(t.address.toLowerCase()),
         );
-        return fresh.length > 0 ? [...fresh, ...indexed] : indexed;
+        const merged = fresh.length > 0 ? [...fresh, ...indexed] : indexed;
+        // Suppress denylisted (test/spam) tokens from every listing.
+        return merged.filter((t) => !isHiddenToken(t.address));
       } catch {
-        return indexed;
+        return indexed.filter((t) => !isHiddenToken(t.address));
       }
     },
     async getToken(address) {
+      // Denylisted tokens are treated as non-existent (their page 404s).
+      if (isHiddenToken(address)) return null;
       const t = await base.getToken(address);
       if (t) return t;
       try {

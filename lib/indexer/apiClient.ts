@@ -7,6 +7,7 @@
 import { formatEther } from "viem";
 import type { LaunchedToken, TokenTrade, TradeSide } from "@/types/token";
 import type { ExploreQuery, IndexerClient } from "@/lib/indexer/types";
+import { isHiddenToken } from "@/lib/indexer/hidden";
 
 const BASE = process.env.NEXT_PUBLIC_INDEXER_URL?.replace(/\/$/, "") ?? "";
 
@@ -95,6 +96,6 @@ export const externalClient: IndexerClient = {
   },
   async getTokensByCreator(creator: string) {
     const data = await get<ApiToken[]>(`/creators/${creator}/tokens`);
-    return (data ?? []).map(mapToken);
+    return (data ?? []).map(mapToken).filter((t) => !isHiddenToken(t.address));
   },
 };

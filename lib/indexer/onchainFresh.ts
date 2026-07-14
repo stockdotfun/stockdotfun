@@ -17,6 +17,7 @@ import { robinhoodChain } from "@/lib/chains/robinhood";
 import { contractAddresses } from "@/lib/contracts/addresses";
 import { GRADUATION_TARGET_ETH, curveMcapEth } from "@/lib/curve/graduation";
 import { ALL_ASSETS } from "@/lib/assets/robinhoodAssets";
+import { isHiddenToken } from "@/lib/indexer/hidden";
 import type { LaunchedToken } from "@/types/token";
 
 const STOCK_REWARD_TREASURY = (process.env.NEXT_PUBLIC_V2_STOCK_REWARD_TREASURY ??
@@ -155,13 +156,14 @@ export async function fetchFreshTokens(indexedCount: number): Promise<LaunchedTo
   const results = await Promise.all(
     Array.from({ length: missing }, (_, k) => readTokenAt(total - 1 - k)),
   );
-  return results.filter((t): t is LaunchedToken => t !== null);
+  return results.filter((t): t is LaunchedToken => t !== null && !isHiddenToken(t.address));
 }
 
 /** Direct on-chain lookup of a single token (token-page fallback). */
 export async function fetchTokenOnchain(address: string): Promise<LaunchedToken | null> {
   const factory = contractAddresses.factory;
   if (!factory) return null;
+  if (isHiddenToken(address)) return null;
   const hit = cache.get(address.toLowerCase());
   if (hit) return hit;
   try {
