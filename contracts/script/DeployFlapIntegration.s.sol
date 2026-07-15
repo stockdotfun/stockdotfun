@@ -8,6 +8,7 @@ import {StockDotFunExternalTradeGateway} from "../src/integrations/StockDotFunEx
 import {ExternalTradeRewardVault} from "../src/rewards/ExternalTradeRewardVault.sol";
 import {ExternalTradeRewardManager} from "../src/rewards/ExternalTradeRewardManager.sol";
 import {CommitRevealRandomnessProvider} from "../src/rewards/CommitRevealRandomnessProvider.sol";
+import {ExternalFeeStockAccumulator} from "../src/rewards/ExternalFeeStockAccumulator.sol";
 
 /// @title DeployFlapIntegration
 /// @notice Deploys the full Flap trading + reward stack on Robinhood Chain and
@@ -26,39 +27,49 @@ import {CommitRevealRandomnessProvider} from "../src/rewards/CommitRevealRandomn
 contract DeployFlapIntegration is Script {
     // Verified Uniswap V2-fork router on RHC (Flap migration target).
     address constant V2_ROUTER = 0x89e5DB8B5aA49aA85AC63f691524311AEB649eba;
+    address constant WETH = 0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73;
 
     function run() external {
         require(block.chainid == 4663, "wrong chain: expected Robinhood Chain (4663)");
         address owner = msg.sender;
-        address feeRecipient = vm.envOr("FEE_RECIPIENT", owner);
+        // Live, verified WETH->USDG->stock conversion adapter (self-funds rewards).
+        address stockAdapter = vm.envOr("STOCK_ADAPTER", address(0xEE348959309506e9c9Ec302fa449b25b767Ff51b));
 
         vm.startBroadcast();
 
-        // Trading stack
+        // Reward vault + self-funding accumulator: gateway reward fees (ETH) land
+        // in the accumulator; a keeper converts them to tokenized stock straight
+        // into the vault.
+        ExternalTradeRewardVault vault = new ExternalTradeRewardVault(owner);
+        ExternalFeeStockAccumulator accumulator =
+            new ExternalFeeStockAccumulator(WETH, stockAdapter, address(vault), owner);
+
+        // Trading stack — reward fee is routed to the accumulator.
         FlapDexAdapterRegistry registry = new FlapDexAdapterRegistry(owner);
         FlapV2DexAdapter v2Adapter = new FlapV2DexAdapter(V2_ROUTER);
         registry.approveAdapter(address(v2Adapter));
         StockDotFunExternalTradeGateway gateway =
-            new StockDotFunExternalTradeGateway(address(registry), feeRecipient, owner);
+            new StockDotFunExternalTradeGateway(address(registry), address(accumulator), owner);
 
-        // Reward stack (inactive until funded + randomness set)
-        ExternalTradeRewardVault vault = new ExternalTradeRewardVault(owner);
+        // Reward manager + randomness (inactive until funded + seed committed).
         CommitRevealRandomnessProvider rng = new CommitRevealRandomnessProvider(owner);
         ExternalTradeRewardManager manager = new ExternalTradeRewardManager(address(vault), owner);
         vault.grantRole(vault.MANAGER_ROLE(), address(manager));
         manager.setRandomness(address(rng));
         manager.setGateway(address(gateway));
         // NOTE: gateway.setRewardConfig(...) intentionally NOT called — rewards
-        // stay OFF (no fee) until the operator funds inventory + commits a seed.
+        // (and the reward fee) stay OFF until the operator funds/accumulates
+        // inventory, configures reward assets + a randomness commitment.
 
         vm.stopBroadcast();
 
+        console.log("RewardVault:           ", address(vault));
+        console.log("FeeStockAccumulator:   ", address(accumulator));
         console.log("FlapDexAdapterRegistry:", address(registry));
         console.log("FlapV2DexAdapter:      ", address(v2Adapter));
         console.log("ExternalTradeGateway:  ", address(gateway));
-        console.log("RewardVault:           ", address(vault));
         console.log("RandomnessProvider:    ", address(rng));
         console.log("RewardManager:         ", address(manager));
-        console.log("Set NEXT_PUBLIC_EXTERNAL_TRADE_GATEWAY_ADDRESS / _REWARD_MANAGER_ADDRESS / _REWARD_VAULT_ADDRESS");
+        console.log("Fee flow: gateway -> accumulator -> (keeper convert) -> stock in vault");
     }
 }

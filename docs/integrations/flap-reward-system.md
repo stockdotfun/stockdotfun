@@ -163,3 +163,28 @@ The reward system activates only when **all** of the following hold, each separa
 5. A valid commit posted **before** the first accrued trade of the epoch.
 
 Until every item is true, the honest state is **campaign paused**, fee `0`, no payouts.
+
+## Self-funding inventory: trading fees → stock (ExternalFeeStockAccumulator)
+
+The reward inventory funds itself from trading fees — no manual pre-funding required.
+
+Flow (fork-tested end-to-end):
+1. A buy/sell of a graduated Flap token through `StockDotFunExternalTradeGateway`
+   skims the disclosed reward fee in native ETH.
+2. The gateway's `feeRecipient` is set to `ExternalFeeStockAccumulator`, so fees
+   accumulate there.
+3. A keeper (`scripts/flap-fee-accumulator-keeper.mjs`) periodically calls
+   `accumulate(stock, ethAmount, minStockOut, deadline)`, which wraps the ETH and
+   converts it via the **verified** `UniswapV4RouterAdapter` (WETH→USDG→stock),
+   delivering the tokenized stock straight into `ExternalTradeRewardVault`. The
+   keeper spreads conversions across the enabled basket by weight, under the
+   adapter's per-conversion size cap.
+4. The vault's `available()` reads its live balance, so accumulated stock is
+   immediately counted as payable reward inventory.
+
+Properties: batched (amortizes gas + slippage); routes only to verified stock
+routes (the adapter enforces the whitelist + slippage); the accumulator custodies
+only pending ETH between conversions; `KEEPER_ROLE`-gated; admin `rescue*` for a
+retired route. Proof: `contracts/test/fork/ExternalFeeAccumulatorFork.t.sol`
+(`test_fullLoop_realTradeFeeBecomesStockInventory` — a real WOBL trade's fee
+becomes real TSLA in the vault). Wired by `DeployFlapIntegration.s.sol`.
