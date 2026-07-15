@@ -1,0 +1,94 @@
+{
+  "$comment": "VERIFIED Flap protocol deployment on Robinhood Chain (chain 4663). Every address below was confirmed on-chain (bytecode + interface + logs) on 2026-07-15 via scripts/verify-flap-robinhood.ts. Do NOT edit addresses without re-running verification. Source of truth priority: on-chain state > official Flap docs (docs.flap.sh).",
+  "chainId": 4663,
+  "chainName": "Robinhood Chain",
+  "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
+  "explorer": "https://robinhoodchain.blockscout.com",
+  "verifiedAt": "2026-07-15",
+  "portal": {
+    "address": "0x26605f322f7fF986f381bB9A6e3f5DAb0bEaEb09",
+    "type": "TransparentUpgradeableProxy",
+    "implementation": "0xd9C9981D784A3765D8264D6104650B901C4e36b1",
+    "implementationName": "Portal",
+    "version": "v5.14.16",
+    "proxyAdmin": "0x21f7f9B33dFD0dBc3a94C0EFA79F1546a1391FF5",
+    "proxyBytecodeHash": "0xcecb292d9c022858199c9348abf0d5836f9ea4dab5cf03710e1dcf41fd9a4c35",
+    "implementationBytecodeHash": "0x85facd83c203c88ea8f37c4f00c328f983e90c5045b06ec20ef18639c818186b",
+    "deploymentBlock": 4180724,
+    "deploymentTx": "0x66ab432afa53aca015e57d94b4c0057d02e5a02600343dff6e66e6ea1281cdbc",
+    "abiSource": "https://robinhoodchain.blockscout.com/address/0x26605f322f7fF986f381bB9A6e3f5DAb0bEaEb09?tab=contract"
+  },
+  "lens": {
+    "$comment": "No separate Portal Lens address on RHC — the getToken* read methods live directly on the Portal. Docs say getTokenV8Safe is BNB-only; use getTokenV7 on RHC.",
+    "readMethod": "getTokenV7",
+    "readTarget": "portal"
+  },
+  "helpers": {
+    "taxTokenHelper": "0xb10bD2672aE63735d677164A54B573a016f0203C",
+    "vaultPortal": "0xe9F7AB7DE8FB8756acbB6a1cd13316a43308197B"
+  },
+  "tokenImplementations": {
+    "standard": "0x88882688a067FE97E11C2185b996286e53132222",
+    "taxV3": "0x7777C8743C88B3aff3cf262135beF2c8b2e83333"
+  },
+  "tokenStatus": {
+    "Invalid": 0,
+    "Tradable": 1,
+    "InDuel": 2,
+    "Killed": 3,
+    "DEX": 4,
+    "Staged": 5
+  },
+  "events": {
+    "TokenCreated": {
+      "signature": "TokenCreated(uint256,address,uint256,address,string,string,string)",
+      "topic0": "0x504e7f360b2e5fe33cbaaae4c593bc55305328341bf79009e43e0e3b7f699603",
+      "fields": ["ts", "creator", "nonce", "token", "name", "symbol", "meta"],
+      "note": "meta is the IPFS CID of the metadata JSON. Verify indexed layout against on-chain topics before topic filtering."
+    },
+    "LaunchedToDEX": {
+      "signature": "LaunchedToDEX(address,address,uint256,uint256)",
+      "topic0": "0x6e4f47630b8745b8cacbd44f42a8a33e7eea7cc08ef22fc7630f4f385784ff7d",
+      "fields": ["token", "pool", "tokenAmount", "quoteAmount"],
+      "note": "Primary graduation event. Emitted by the Portal. Params are NOT indexed (all in data)."
+    }
+  },
+  "migration": {
+    "$comment": "On RHC, Flap graduates to a Uniswap V2 fork pair (verified: WOBL/SERVO pools have factory 0x8bcEaA40...937f). Quote asset is native ETH (address(0)); pools pair the token with WETH.",
+    "dex": "uniswap-v2-fork",
+    "migratorType": "V2_MIGRATOR",
+    "factory": "0x8bcEaA40B9AcdfAedF85AdF4FF01F5Ad6517937f",
+    "router": "0x89e5db8b5aa49aa85ac63f691524311aeb649eba",
+    "quoteToken": "0x0000000000000000000000000000000000000000",
+    "weth": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+    "graduationDepthEth": 5,
+    "curve": "CURVE_RH_TOSHI_5ETH"
+  },
+  "stats": {
+    "tokensCreatedAtLeast": 1000,
+    "graduations": 92,
+    "note": "TokenCreated count is Blockscout's 1000-row page cap; actual total is >= 1000."
+  },
+  "verifiedGraduatesSample": [
+    {
+      "symbol": "WOBL",
+      "token": "0x76F80333B1d0abF3ff1636cdFb4efcE0FE747777",
+      "pool": "0x4AB8Abf127043779968e3Ef3B8c9A393DA4b1733",
+      "status": "DEX",
+      "reservesEth": 1.17
+    },
+    {
+      "symbol": "SERVO",
+      "token": "0x46941bE352545305a299975CDC54D9Fdf7Ce7777",
+      "pool": "0x02051a877477E810993c24aC295704065721C2D0",
+      "status": "DEX",
+      "reservesEth": 5.85
+    }
+  ],
+  "gaps": [
+    "Chain-id integer 4663 is not written literally in Flap docs (confirmed externally via ChainList + the Portal being live on the 4663 Blockscout).",
+    "DEXId and V3LPFeeProfile enum integer values are not documented (observed dexId=0 for V2 graduates).",
+    "Indexed-parameter layout of events not confirmed from docs prose — LaunchedToDEX confirmed non-indexed on-chain; verify TokenCreated topics before topic filtering.",
+    "No verified on-chain randomness/VRF provider found on RHC — reward randomness must use commit-reveal or stay paused (see reward docs)."
+  ]
+}
