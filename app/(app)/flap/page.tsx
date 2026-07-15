@@ -1,6 +1,7 @@
 "use client";
 
-import { ExternalLink, ShieldCheck, Info } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, ShieldCheck, Info, ArrowRight } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
@@ -9,7 +10,7 @@ import { useFlapGraduates } from "@/hooks/useFlapGraduates";
 import { platformConfig } from "@/lib/config";
 import { shortAddress } from "@/lib/web3/hooks";
 
-const TRADING_ENABLED = process.env.NEXT_PUBLIC_FLAP_INTEGRATION_ENABLED === "true";
+const TRADING_LIVE = !!process.env.NEXT_PUBLIC_EXTERNAL_TRADE_GATEWAY_ADDRESS;
 const explorer = platformConfig.explorerUrl.replace(/\/$/, "");
 
 function fmtEth(n: number) {
@@ -35,18 +36,23 @@ export default function FlapGraduatesPage() {
         via the verified Flap Portal&apos;s <span className="font-mono">LaunchedToDEX</span> event.
       </p>
 
-      {/* Honest status banner — trading through StockDotFun is not yet enabled. */}
-      {!TRADING_ENABLED && (
-        <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-[13px] text-foreground">
-          <Info size={16} className="mt-0.5 shrink-0 text-warning" />
+      {/* Honest status banner. */}
+      <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-primary/30 bg-primary/[0.06] px-4 py-3 text-[13px] text-foreground">
+        <Info size={16} className="mt-0.5 shrink-0 text-primary" />
+        {TRADING_LIVE ? (
           <p>
-            Integration is in verification. These are <strong>real graduated Flap tokens</strong>, but trading
-            through StockDotFun and the stock-reward campaign are <strong>not yet enabled</strong> — the trading
-            gateway and reward vault are built and tested but not deployed. For now, view each token on Flap or
-            the explorer.
+            Trading is <strong>live</strong> for listed graduates — every trade routes to the real migrated DEX
+            pool through StockDotFun&apos;s gateway. The <strong>stock-reward campaign is paused</strong> until
+            it&apos;s funded, so <strong>no reward fee is charged</strong> right now. Tokens not yet listed show
+            &ldquo;DEX routing not yet enabled.&rdquo;
           </p>
-        </div>
-      )}
+        ) : (
+          <p>
+            These are <strong>real graduated Flap tokens</strong>. Trading through StockDotFun isn&apos;t enabled
+            in this environment yet — view each token on Flap or the explorer.
+          </p>
+        )}
+      </div>
 
       {isLoading ? (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -88,14 +94,14 @@ export default function FlapGraduatesPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-3 text-[11.5px]">
+                <div className="mt-4 flex items-center gap-3 text-[11px]">
                   <a
                     href={`https://flap.sh/robinhood/${g.token}?lang=en`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary transition-colors hover:text-primary/80"
+                    className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Flap <ExternalLink size={11} />
+                    Flap <ExternalLink size={10} />
                   </a>
                   <a
                     href={`${explorer}/tx/${g.graduationTx}`}
@@ -103,7 +109,7 @@ export default function FlapGraduatesPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Graduation tx <ExternalLink size={11} />
+                    Graduation tx <ExternalLink size={10} />
                   </a>
                   <a
                     href={`${explorer}/address/${g.pool}`}
@@ -111,9 +117,16 @@ export default function FlapGraduatesPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Pool <ExternalLink size={11} />
+                    Pool <ExternalLink size={10} />
                   </a>
                 </div>
+
+                <Link
+                  href={`/flap/${g.token}`}
+                  className="btn-sweep mt-4 flex w-full items-center justify-center gap-1.5 rounded-full bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+                >
+                  Trade on StockDotFun <ArrowRight size={14} />
+                </Link>
               </CardBody>
             </Card>
           ))}

@@ -67,6 +67,11 @@ export const platformConfig = {
     // CurveZap: 1-transaction ETH buys/sells (wrap+approve+trade atomically).
     // When unset, trading falls back to the multi-step wrap/approve flow.
     zap: envAddress(process.env.NEXT_PUBLIC_ZAP_ADDRESS),
+    // Flap integration (deployed 2026-07-16). When unset, Flap trading UI hides.
+    externalTradeGateway: envAddress(process.env.NEXT_PUBLIC_EXTERNAL_TRADE_GATEWAY_ADDRESS),
+    flapDexRegistry: envAddress(process.env.NEXT_PUBLIC_FLAP_DEX_ADAPTER_REGISTRY_ADDRESS),
+    flapRewardVault: envAddress(process.env.NEXT_PUBLIC_EXTERNAL_REWARD_VAULT_ADDRESS),
+    flapRewardManager: envAddress(process.env.NEXT_PUBLIC_EXTERNAL_REWARD_MANAGER_ADDRESS),
   },
 
   /**
