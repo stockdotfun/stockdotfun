@@ -10,6 +10,7 @@ import MobileNav from "@/components/layout/MobileNav";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import ConnectWalletButton from "@/components/platform/ConnectWalletButton";
 import MarketTicker from "@/components/platform/MarketTicker";
+import XLink from "@/components/XLink";
 
 /** App header: solid surface, denser, with the market ticker strip below. */
 export default function AppHeader() {
@@ -48,6 +49,7 @@ export default function AppHeader() {
           <NavMenu />
 
           <div className="flex items-center gap-2.5">
+            <XLink className="hidden sm:flex" />
             <ThemeToggle />
             <div className="hidden sm:block">
               <ConnectWalletButton compact />

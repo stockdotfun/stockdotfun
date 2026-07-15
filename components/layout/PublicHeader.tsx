@@ -9,6 +9,7 @@ import NavMenu from "@/components/layout/NavMenu";
 import MobileNav from "@/components/layout/MobileNav";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import ConnectWalletButton from "@/components/platform/ConnectWalletButton";
+import XLink from "@/components/XLink";
 
 /** Marketing header: transparent at top, compresses + blurs on scroll. */
 export default function PublicHeader() {
@@ -48,6 +49,7 @@ export default function PublicHeader() {
         <NavMenu />
 
         <div className="flex items-center gap-2.5">
+          <XLink className="hidden sm:flex" />
           <ThemeToggle />
           <div className="hidden sm:block">
             <ConnectWalletButton compact />
