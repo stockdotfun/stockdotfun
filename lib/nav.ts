@@ -62,6 +62,11 @@ export const NAV_GROUPS: NavGroup[] = [
         description: "Coins ranked by holder rewards",
         href: "/explore?sort=rewards",
       },
+      {
+        label: "Flap Graduates",
+        description: "Graduated Flap tokens on Robinhood Chain",
+        href: "/flap",
+      },
     ],
   },
   {
