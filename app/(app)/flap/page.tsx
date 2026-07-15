@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
 import { useFlapGraduates } from "@/hooks/useFlapGraduates";
+import FlapRewardsCard from "@/components/platform/FlapRewardsCard";
 import { platformConfig } from "@/lib/config";
 import { shortAddress } from "@/lib/web3/hooks";
 
@@ -53,6 +54,12 @@ export default function FlapGraduatesPage() {
           </p>
         )}
       </div>
+
+      {TRADING_LIVE && (
+        <div className="mt-5">
+          <FlapRewardsCard />
+        </div>
+      )}
 
       {isLoading ? (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

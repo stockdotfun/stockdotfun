@@ -1,0 +1,38 @@
+# Converts Flap reward fees (native ETH accumulated in ExternalFeeStockAccumulator)
+# into tokenized stock, delivered into the reward vault — self-funding the
+# stock-reward inventory from real trading fees. Inert until pending >= MIN.
+name: flap-fee-keeper
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 minutes
+  workflow_dispatch: {} # manual runs
+
+concurrency:
+  group: flap-fee-keeper
+  cancel-in-progress: false
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RHC_RPC_URL: ${{ vars.RHC_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com' }}
+      ACCUMULATOR_ADDRESS: ${{ vars.FLAP_ACCUMULATOR_ADDRESS || '0x96bfd3411643667bf834cd76510db2aef27e3bf0' }}
+      REWARD_VAULT_ADDRESS: ${{ vars.FLAP_REWARD_VAULT_ADDRESS || '0x849b67d165020d77401018cca65f93e15de49656' }}
+      MIN_ACCUMULATE_ETH: ${{ vars.FLAP_MIN_ACCUMULATE_ETH || '0.05' }}
+      KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # The keeper only needs viem — install it standalone so a broken app lock
+      # file can never stop reward-inventory funding (same pattern as the native
+      # rewards keeper).
+      - run: |
+          rm -f package-lock.json package.json
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund viem@^2
+      - name: Convert accumulated fees -> stock into the reward vault
+        run: node scripts/flap-fee-accumulator-keeper.mjs

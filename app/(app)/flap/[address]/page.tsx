@@ -9,6 +9,7 @@ import StatCard from "@/components/ui/StatCard";
 import Skeleton from "@/components/ui/Skeleton";
 import EmptyState from "@/components/ui/EmptyState";
 import FlapTradePanel from "@/components/platform/FlapTradePanel";
+import FlapRewardsCard from "@/components/platform/FlapRewardsCard";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { platformConfig } from "@/lib/config";
 import { shortAddress } from "@/lib/web3/hooks";
@@ -126,7 +127,10 @@ export default function FlapTokenPage({ params }: { params: Promise<{ address: s
           </div>
         </div>
 
-        <FlapTradePanel token={data.token} symbol={data.symbol || "TOKEN"} />
+        <div className="space-y-4">
+          <FlapTradePanel token={data.token} symbol={data.symbol || "TOKEN"} />
+          <FlapRewardsCard />
+        </div>
       </div>
     </div>
   );
